@@ -26,6 +26,10 @@ export class UsersService {
     return user
   }
 
+  async findOneByEmail(email: string): Promise<User> {
+    return await this.userModel.findOne({ email })
+  }
+
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { email, password } = createUserDto
 

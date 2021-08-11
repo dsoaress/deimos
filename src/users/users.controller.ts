@@ -10,9 +10,9 @@ import {
   ValidationPipe
 } from '@nestjs/common'
 
+import { ParametersPipe } from '../common/pipes/parameters.pipe'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
-import { ParametersPipe } from './pipes/parameters.pipe'
 import { User } from './schema/user.schema'
 import { UsersService } from './users.service'
 

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
 
+import { SessionModule } from './session/session.module'
 import { TeamsModule } from './teams/teams.module'
 import { UsersModule } from './users/users.module'
 
@@ -13,7 +14,8 @@ import { UsersModule } from './users/users.module'
       useFindAndModify: false
     }),
     UsersModule,
-    TeamsModule
+    TeamsModule,
+    SessionModule
   ],
   controllers: [],
   providers: []
