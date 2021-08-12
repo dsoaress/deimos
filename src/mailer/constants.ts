@@ -1,4 +1,4 @@
-export const mailConfig = {
+export const mailerConfig = {
   sandbox: 'mail.marscollective.co',
   from: {
     name: 'Mars Collective',

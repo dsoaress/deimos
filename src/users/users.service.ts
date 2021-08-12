@@ -5,23 +5,24 @@ import dayjs from 'dayjs'
 import { Model } from 'mongoose'
 import { v4 as uuid } from 'uuid'
 
-import { MailProvider } from '../common/providers/mail.provider'
-import { forgotPassword } from './../common/templates/forgot-password.template'
+import { MailerService } from './../mailer/mailer.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { User, UserDocument } from './schema/user.schema'
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel('User') private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel('User') private userModel: Model<UserDocument>,
+    private mailerService: MailerService
+  ) {}
 
   async findAll(): Promise<User[]> {
-    const users = await this.userModel.find().exec()
-    return users
+    return await this.userModel.find()
   }
 
   async findOne(_id: string): Promise<User> {
-    const user = await this.userModel.findOne({ _id }).exec()
+    const user = await this.userModel.findOne({ _id })
 
     if (!user) {
       throw new NotFoundException('User not found')
@@ -30,8 +31,14 @@ export class UsersService {
     return user
   }
 
-  async findOneByEmail(email: string): Promise<User | null> {
-    return await this.userModel.findOne({ email })
+  async findOneByEmail(email: string): Promise<User> {
+    const user = await this.userModel.findOne({ email })
+
+    if (!user) {
+      throw new BadRequestException()
+    }
+
+    return user
   }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -43,48 +50,24 @@ export class UsersService {
       throw new BadRequestException('Email already registered')
     }
 
-    const { token, expiresIn } = this.generateEmailVerificationToken()
-
     createUserDto.password = await hash(password, 8)
-    createUserDto.emailVerificationToken = { token, expiresIn }
+    createUserDto.emailVerificationToken = {
+      token: uuid(),
+      expiresIn: dayjs().add(30, 'days').unix()
+    }
 
     const createdUser = new this.userModel(createUserDto)
 
     const user = await createdUser.save()
 
-    this.checkEmail(user)
+    this.mailerService.sendVerificationEmail(user)
 
     return user
   }
 
-  checkEmail(user: User): void {
-    const message = {
-      to: {
-        name: `${user.firstName} ${user.lastName}`,
-        email: user.email
-      },
-      subject: 'Check your email',
-      templateData: {
-        template: forgotPassword,
-        variables: {
-          firstName: user.firstName,
-          link: `http://localhost:3010/session/${user._id}/${user.emailVerificationToken.token}`,
-          token: user.emailVerificationToken.token
-        }
-      }
-    }
-
-    MailProvider.sendMail(message)
-  }
-
   async update(_id: string, updateUserDto: UpdateUserDto): Promise<void> {
     const { oldPassword, password } = updateUserDto
-
-    const user = await this.userModel.findOne({ _id })
-
-    if (!user) {
-      throw new NotFoundException('User not found')
-    }
+    const user = await this.findOne(_id)
 
     if (password) {
       if (!oldPassword) {
@@ -108,7 +91,9 @@ export class UsersService {
     await this.userModel.findByIdAndUpdate({ _id }, { $set: updateUserDto })
   }
 
-  async verifyEmail(_id: string): Promise<void> {
+  async updateEmailVerificationStatus(_id: string): Promise<void> {
+    await this.findOne(_id)
+
     await this.userModel.findByIdAndUpdate(
       { _id },
       {
@@ -118,33 +103,19 @@ export class UsersService {
     )
   }
 
-  generateEmailVerificationToken(): { token: string; expiresIn: number } {
-    return {
-      token: uuid(),
-      expiresIn: dayjs().add(30, 'days').unix()
-    }
-  }
-
   async updateEmailVerificationToken(_id: string, token: string, expiresIn: number): Promise<void> {
-    const user = await this.userModel.findByIdAndUpdate(
+    const user = await this.findOne(_id)
+
+    await this.userModel.findByIdAndUpdate(
       { _id },
       { $set: { emailVerificationToken: { token, expiresIn } } }
     )
 
-    if (!user) {
-      throw new NotFoundException('User not found')
-    }
-
-    this.checkEmail(user)
+    this.mailerService.sendVerificationEmail(user)
   }
 
   async delete(_id: string): Promise<void> {
-    const user = await this.userModel.findOne({ _id })
-
-    if (!user) {
-      throw new NotFoundException('User not found')
-    }
-
+    await this.findOne(_id)
     await this.userModel.deleteOne({ _id })
   }
 }

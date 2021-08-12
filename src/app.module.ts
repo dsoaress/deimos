@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { MongooseModule } from '@nestjs/mongoose'
 
+import { AuthModule } from './auth/auth.module'
+import { MailerModule } from './mailer/mailer.module'
 import { SessionModule } from './session/session.module'
 import { TeamsModule } from './teams/teams.module'
 import { UsersModule } from './users/users.module'
@@ -19,7 +21,9 @@ import { UsersModule } from './users/users.module'
     }),
     UsersModule,
     TeamsModule,
-    SessionModule
+    SessionModule,
+    AuthModule,
+    MailerModule
   ],
   controllers: [],
   providers: []

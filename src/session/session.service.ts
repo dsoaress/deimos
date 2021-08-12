@@ -1,66 +1,40 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException
-} from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
-import { compare } from 'bcryptjs'
 import dayjs from 'dayjs'
 import { sign } from 'jsonwebtoken'
 import { Model } from 'mongoose'
 import { User } from 'src/users/schema/user.schema'
 import { v4 as uuid } from 'uuid'
 
-import { UsersService } from '../users/users.service'
 import { RefreshTokenDto } from './dto/refresh-token.dto'
-import { SignInDto } from './dto/sign-in.dto'
 import { SessionDocument } from './schema/session.schema'
 
-export type Response = {
+type Response = {
   accessToken: string
   refreshToken: string
 }
 
 @Injectable()
 export class SessionService {
-  constructor(
-    @InjectModel('Session') private sessionModel: Model<SessionDocument>,
-    private usersService: UsersService
-  ) {}
+  constructor(@InjectModel('Session') private sessionModel: Model<SessionDocument>) {}
 
-  async signIn({ email, password }: SignInDto): Promise<Response> {
-    const user = await this.usersService.findOneByEmail(email)
+  async create(user: User): Promise<Response> {
+    const { JWT_SECRET } = process.env
 
-    if (!user) {
-      throw new UnauthorizedException()
-    }
+    if (!JWT_SECRET) throw new Error('JWT_SECRET is missing')
 
-    if (!user.verified) {
-      const emailVerificationTokenExpired = dayjs().isAfter(
-        dayjs.unix(user.emailVerificationToken.expiresIn)
-      )
+    const createdSession = new this.sessionModel({
+      refreshToken: uuid(),
+      expiresIn: dayjs().add(30, 'days').unix(),
+      user
+    })
 
-      if (emailVerificationTokenExpired) {
-        const { token, expiresIn } = this.usersService.generateEmailVerificationToken()
-        user.emailVerificationToken = { token, expiresIn }
+    const { refreshToken } = await createdSession.save()
 
-        await this.usersService.updateEmailVerificationToken(user._id.toString(), token, expiresIn)
-      } else {
-        this.usersService.checkEmail(user)
-      }
-
-      throw new ForbiddenException('Not verified email')
-    }
-
-    const checkPasswords = await compare(password, user.password)
-
-    if (!checkPasswords) {
-      throw new UnauthorizedException()
-    }
-
-    const { accessToken, refreshToken } = await this.generateTokens(user)
+    const accessToken = sign({ role: user.role }, JWT_SECRET, {
+      subject: user._id.toString(),
+      expiresIn: '15m'
+    })
 
     return { accessToken, refreshToken }
   }
@@ -81,53 +55,7 @@ export class SessionService {
 
     await this.sessionModel.deleteOne(refreshTokenDto)
 
-    const { accessToken, refreshToken } = await this.generateTokens(refreshTokenExists.user)
-
-    return { accessToken, refreshToken }
-  }
-
-  async verifyEmail(_id: string, token: string): Promise<void> {
-    const user = await this.usersService.findOne(_id)
-
-    if (!user.verified) {
-      const emailVerificationTokenExpired = dayjs().isAfter(
-        dayjs.unix(user.emailVerificationToken.expiresIn)
-      )
-
-      if (emailVerificationTokenExpired) {
-        const { token, expiresIn } = this.usersService.generateEmailVerificationToken()
-        user.emailVerificationToken = { token, expiresIn }
-
-        await this.usersService.updateEmailVerificationToken(user._id.toString(), token, expiresIn)
-
-        throw new BadRequestException('Token expired')
-      }
-
-      if (token !== user.emailVerificationToken.token) {
-        throw new BadRequestException('Token invalid')
-      }
-
-      await this.usersService.verifyEmail(user._id.toString())
-    }
-  }
-
-  private async generateTokens(user: User): Promise<Response> {
-    const { JWT_SECRET } = process.env
-
-    if (!JWT_SECRET) throw new Error('JWT_SECRET is missing')
-
-    const createdSession = new this.sessionModel({
-      refreshToken: uuid(),
-      expiresIn: dayjs().add(30, 'days').unix(),
-      user
-    })
-
-    const { refreshToken } = await createdSession.save()
-
-    const accessToken = sign({ role: user.role }, JWT_SECRET, {
-      subject: user._id.toString(),
-      expiresIn: '15m'
-    })
+    const { accessToken, refreshToken } = await this.create(refreshTokenExists.user)
 
     return { accessToken, refreshToken }
   }
