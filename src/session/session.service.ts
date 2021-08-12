@@ -1,11 +1,19 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException
+} from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt'
 import { InjectModel } from '@nestjs/mongoose'
+import { compare } from 'bcryptjs'
 import dayjs from 'dayjs'
-import { sign } from 'jsonwebtoken'
 import { Model } from 'mongoose'
 import { User } from 'src/users/schema/user.schema'
 import { v4 as uuid } from 'uuid'
 
+import { MailerService } from '../mailer/mailer.service'
+import { UsersService } from '../users/users.service'
 import { RefreshTokenDto } from './dto/refresh-token.dto'
 import { SessionDocument } from './schema/session.schema'
 
@@ -16,12 +24,41 @@ type Response = {
 
 @Injectable()
 export class SessionService {
-  constructor(@InjectModel('Session') private sessionModel: Model<SessionDocument>) {}
+  constructor(
+    @InjectModel('Session') private sessionModel: Model<SessionDocument>,
+    private usersService: UsersService,
+    private mailerService: MailerService,
+    private jwtService: JwtService
+  ) {}
 
-  async create(user: User): Promise<Response> {
-    const { JWT_SECRET } = process.env
+  async validateUser(email: string, password: string): Promise<User> {
+    const user = await this.usersService.findOneByEmail(email)
+    const checkPasswords = await compare(password, user.password)
 
-    if (!JWT_SECRET) throw new Error('JWT_SECRET is missing')
+    if (!checkPasswords) {
+      throw new BadRequestException()
+    }
+
+    return user
+  }
+
+  async signIn(user: User): Promise<Response> {
+    if (!user.verified) {
+      const emailVerificationTokenExpired = dayjs().isAfter(
+        dayjs.unix(user.emailVerificationToken.expiresIn)
+      )
+
+      if (emailVerificationTokenExpired) {
+        const { token, expiresIn } = this.generateEmailVerificationToken()
+        user.emailVerificationToken = { token, expiresIn }
+
+        await this.usersService.updateEmailVerificationToken(user._id.toString(), token, expiresIn)
+      } else {
+        this.mailerService.sendVerificationEmail(user)
+      }
+
+      throw new ForbiddenException('Not verified email')
+    }
 
     const createdSession = new this.sessionModel({
       refreshToken: uuid(),
@@ -31,12 +68,35 @@ export class SessionService {
 
     const { refreshToken } = await createdSession.save()
 
-    const accessToken = sign({ role: user.role }, JWT_SECRET, {
-      subject: user._id.toString(),
-      expiresIn: '15m'
-    })
+    const payload = { role: user.role, sub: user._id.toString() }
+    const accessToken = this.jwtService.sign(payload)
 
     return { accessToken, refreshToken }
+  }
+
+  async verifyEmail(_id: string, token: string): Promise<void> {
+    const user = await this.usersService.findOne(_id)
+
+    if (!user.verified) {
+      const emailVerificationTokenExpired = dayjs().isAfter(
+        dayjs.unix(user.emailVerificationToken.expiresIn)
+      )
+
+      if (emailVerificationTokenExpired) {
+        const { token, expiresIn } = this.generateEmailVerificationToken()
+        user.emailVerificationToken = { token, expiresIn }
+
+        await this.usersService.updateEmailVerificationToken(_id, token, expiresIn)
+
+        throw new BadRequestException('Token expired')
+      }
+
+      if (token !== user.emailVerificationToken.token) {
+        throw new BadRequestException('Token invalid')
+      }
+
+      await this.usersService.updateEmailVerificationStatus(_id)
+    }
   }
 
   async refreshToken(refreshTokenDto: RefreshTokenDto): Promise<Response> {
@@ -55,8 +115,15 @@ export class SessionService {
 
     await this.sessionModel.deleteOne(refreshTokenDto)
 
-    const { accessToken, refreshToken } = await this.create(refreshTokenExists.user)
+    const { accessToken, refreshToken } = await this.signIn(refreshTokenExists.user)
 
     return { accessToken, refreshToken }
+  }
+
+  generateEmailVerificationToken(): { token: string; expiresIn: number } {
+    return {
+      token: uuid(),
+      expiresIn: dayjs().add(30, 'days').unix()
+    }
   }
 }

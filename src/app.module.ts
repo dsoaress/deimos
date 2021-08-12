@@ -3,7 +3,6 @@ import { ConfigModule } from '@nestjs/config'
 import { MongooseModule } from '@nestjs/mongoose'
 
 import { AppController } from './app.controller'
-import { AuthModule } from './auth/auth.module'
 import { MailerModule } from './mailer/mailer.module'
 import { SessionModule } from './session/session.module'
 import { TeamsModule } from './teams/teams.module'
@@ -23,7 +22,6 @@ import { UsersModule } from './users/users.module'
     UsersModule,
     TeamsModule,
     SessionModule,
-    AuthModule,
     MailerModule
   ],
   controllers: [AppController],
