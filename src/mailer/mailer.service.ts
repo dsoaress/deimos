@@ -49,7 +49,7 @@ export class MailerService {
         template: verificationEmail,
         variables: {
           firstName: user.firstName,
-          link: `http://localhost:3010/session/${user._id}/${user.emailVerificationToken.token}`,
+          link: `http://localhost:3010/auth/${user._id}/${user.emailVerificationToken.token}`,
           token: user.emailVerificationToken.token
         }
       }
