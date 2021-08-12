@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { APP_GUARD } from '@nestjs/core'
 import { MongooseModule } from '@nestjs/mongoose'
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 
 import { AppController } from './app.controller'
 import { MailerModule } from './mailer/mailer.module'
@@ -19,12 +21,21 @@ import { UsersModule } from './users/users.module'
       useUnifiedTopology: true,
       useFindAndModify: false
     }),
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 10
+    }),
     UsersModule,
     TeamsModule,
     SessionModule,
     MailerModule
   ],
   controllers: [AppController],
-  providers: []
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard
+    }
+  ]
 })
 export class AppModule {}
