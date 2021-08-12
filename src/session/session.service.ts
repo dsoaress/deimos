@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException
@@ -36,6 +37,23 @@ export class SessionService {
       throw new UnauthorizedException()
     }
 
+    if (!user.verified) {
+      const emailVerificationTokenExpired = dayjs().isAfter(
+        dayjs.unix(user.emailVerificationToken.expiresIn)
+      )
+
+      if (emailVerificationTokenExpired) {
+        const { token, expiresIn } = this.usersService.generateEmailVerificationToken()
+        user.emailVerificationToken = { token, expiresIn }
+
+        await this.usersService.updateEmailVerificationToken(user._id.toString(), token, expiresIn)
+      } else {
+        this.usersService.checkEmail(user)
+      }
+
+      throw new ForbiddenException('Not verified email')
+    }
+
     const checkPasswords = await compare(password, user.password)
 
     if (!checkPasswords) {
@@ -68,7 +86,36 @@ export class SessionService {
     return { accessToken, refreshToken }
   }
 
+  async verifyEmail(_id: string, token: string): Promise<void> {
+    const user = await this.usersService.findOne(_id)
+
+    if (!user.verified) {
+      const emailVerificationTokenExpired = dayjs().isAfter(
+        dayjs.unix(user.emailVerificationToken.expiresIn)
+      )
+
+      if (emailVerificationTokenExpired) {
+        const { token, expiresIn } = this.usersService.generateEmailVerificationToken()
+        user.emailVerificationToken = { token, expiresIn }
+
+        await this.usersService.updateEmailVerificationToken(user._id.toString(), token, expiresIn)
+
+        throw new BadRequestException('Token expired')
+      }
+
+      if (token !== user.emailVerificationToken.token) {
+        throw new BadRequestException('Token invalid')
+      }
+
+      await this.usersService.verifyEmail(user._id.toString())
+    }
+  }
+
   private async generateTokens(user: User): Promise<Response> {
+    const { JWT_SECRET } = process.env
+
+    if (!JWT_SECRET) throw new Error('JWT_SECRET is missing')
+
     const createdSession = new this.sessionModel({
       refreshToken: uuid(),
       expiresIn: dayjs().add(30, 'days').unix(),
@@ -77,7 +124,7 @@ export class SessionService {
 
     const { refreshToken } = await createdSession.save()
 
-    const accessToken = sign({ role: user.role }, '123456', {
+    const accessToken = sign({ role: user.role }, JWT_SECRET, {
       subject: user._id.toString(),
       expiresIn: '15m'
     })

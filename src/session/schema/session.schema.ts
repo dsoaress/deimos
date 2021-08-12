@@ -8,13 +8,13 @@ export type SessionDocument = Session & mongoose.Document
 @Schema()
 export class Session {
   @Prop({ unique: true })
-  refreshToken: string
+  refreshToken!: string
 
   @Prop()
-  expiresIn: number
+  expiresIn!: number
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  user: User
+  user!: User
 }
 
 export const SessionSchema = SchemaFactory.createForClass(Session)

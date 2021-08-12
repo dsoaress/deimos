@@ -14,25 +14,34 @@ export enum Roles {
 @Schema({ timestamps: true })
 export class User {
   @Prop({ type: mongoose.Schema.Types.ObjectId, auto: true })
-  _id: mongoose.ObjectId
+  _id!: mongoose.ObjectId
 
   @Prop()
-  firstName: string
+  firstName!: string
 
   @Prop()
-  lastName: string
+  lastName!: string
 
   @Prop()
-  avatar: string
+  avatar?: string
 
   @Prop({ unique: true })
-  email: string
+  email!: string
 
   @Prop()
-  password: string
+  password!: string
+
+  @Prop({ default: false })
+  verified!: boolean
+
+  @Prop({ type: { token: String, expiresIn: Number } })
+  emailVerificationToken!: {
+    token: string
+    expiresIn: number
+  }
 
   @Prop({ default: Roles.client, enum: Roles })
-  role: Roles
+  role!: Roles
 }
 
 export const UserSchema = SchemaFactory.createForClass(User)

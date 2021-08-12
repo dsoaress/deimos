@@ -1,5 +1,6 @@
-import { Body, Controller, HttpCode, Post, ValidationPipe } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, Param, Post, ValidationPipe } from '@nestjs/common'
 import { UsePipes } from '@nestjs/common'
+import { ParametersPipe } from 'src/common/pipes/parameters.pipe'
 
 import { RefreshTokenDto } from './dto/refresh-token.dto'
 import { SignInDto } from './dto/sign-in.dto'
@@ -21,5 +22,13 @@ export class SessionController {
   @UsePipes(ValidationPipe)
   async refreshToken(@Body() refreshTokenDto: RefreshTokenDto): Promise<Response> {
     return await this.sessionService.refreshToken(refreshTokenDto)
+  }
+
+  @Get(':_id/:token')
+  async verifyEmail(
+    @Param('_id', ParametersPipe) _id: string,
+    @Param('token') token: string
+  ): Promise<void> {
+    return await this.sessionService.verifyEmail(_id, token)
   }
 }
