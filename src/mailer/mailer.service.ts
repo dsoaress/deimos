@@ -7,6 +7,7 @@ import { User } from 'src/users/schema/user.schema'
 import { mailerConfig } from './constants'
 import { ParseMailDto } from './dto/parse-mail.dto'
 import { SendMailDto } from './dto/send-mail.dto'
+import { forgotPassword } from './templates/forgot-password.template'
 import { verificationEmail } from './templates/verification-email.template'
 
 @Injectable()
@@ -51,6 +52,26 @@ export class MailerService {
           firstName: user.firstName,
           link: `http://localhost:3010/auth/${user._id}/${user.emailVerificationToken.token}`,
           token: user.emailVerificationToken.token
+        }
+      }
+    }
+
+    this.sendMail(message)
+  }
+
+  async sendForgotPasswordEmail(user: User): Promise<void> {
+    const message = {
+      to: {
+        name: `${user.firstName} ${user.lastName}`,
+        email: user.email
+      },
+      subject: 'Reset your password',
+      templateData: {
+        template: forgotPassword,
+        variables: {
+          firstName: user.firstName,
+          link: `http://localhost:3000/auth/${user._id}/${user.forgotPasswordToken.token}`,
+          token: user.forgotPasswordToken.token
         }
       }
     }

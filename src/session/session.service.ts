@@ -14,7 +14,9 @@ import { v4 as uuid } from 'uuid'
 
 import { MailerService } from '../mailer/mailer.service'
 import { UsersService } from '../users/users.service'
+import { ForgotPasswordDto } from './dto/forgot-password.dto'
 import { RefreshTokenDto } from './dto/refresh-token.dto'
+import { ResetPasswordDto } from './dto/reset-password.dto'
 import { SessionDocument } from './schema/session.schema'
 
 type Response = {
@@ -49,10 +51,10 @@ export class SessionService {
       )
 
       if (emailVerificationTokenExpired) {
-        const { token, expiresIn } = this.generateEmailVerificationToken()
+        const { token, expiresIn } = this.generateToken()
         user.emailVerificationToken = { token, expiresIn }
 
-        await this.usersService.updateEmailVerificationToken(user._id.toString(), token, expiresIn)
+        await this.usersService.setEmailVerificationToken(user._id.toString(), token, expiresIn)
       } else {
         this.mailerService.sendVerificationEmail(user)
       }
@@ -83,10 +85,10 @@ export class SessionService {
       )
 
       if (emailVerificationTokenExpired) {
-        const { token, expiresIn } = this.generateEmailVerificationToken()
+        const { token, expiresIn } = this.generateToken()
         user.emailVerificationToken = { token, expiresIn }
 
-        await this.usersService.updateEmailVerificationToken(_id, token, expiresIn)
+        await this.usersService.setEmailVerificationToken(_id, token, expiresIn)
 
         throw new BadRequestException('Token expired')
       }
@@ -95,7 +97,8 @@ export class SessionService {
         throw new BadRequestException('Token invalid')
       }
 
-      await this.usersService.updateEmailVerificationStatus(_id)
+      await this.usersService.setEmailVerificationStatus(_id)
+      this.mailerService.sendVerificationEmail(user)
     }
   }
 
@@ -120,10 +123,39 @@ export class SessionService {
     return { accessToken, refreshToken }
   }
 
-  generateEmailVerificationToken(): { token: string; expiresIn: number } {
+  generateToken(): { token: string; expiresIn: number } {
     return {
       token: uuid(),
       expiresIn: dayjs().add(30, 'days').unix()
+    }
+  }
+
+  async sendForgotPasswordEmail({ email }: ForgotPasswordDto): Promise<void> {
+    const user = await this.usersService.findOneByEmail(email)
+    const { token, expiresIn } = this.generateToken()
+
+    await this.usersService.setForgotPasswordToken(user._id.toString(), token, expiresIn)
+
+    user.forgotPasswordToken = { token, expiresIn }
+
+    this.mailerService.sendForgotPasswordEmail(user)
+  }
+
+  async resetPassword({ email, token, password }: ResetPasswordDto): Promise<void> {
+    const user = await this.usersService.findOneByEmail(email)
+
+    if (user.forgotPasswordToken.token === token) {
+      const forgotPasswordTokenExpired = dayjs().isAfter(
+        dayjs.unix(user.forgotPasswordToken.expiresIn)
+      )
+
+      if (forgotPasswordTokenExpired) {
+        throw new BadRequestException('Token expired')
+      }
+
+      await this.usersService.resetPassword(user._id.toString(), password)
+    } else {
+      throw new BadRequestException('Token invalid')
     }
   }
 }

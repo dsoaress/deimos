@@ -40,6 +40,12 @@ export class User {
     expiresIn: number
   }
 
+  @Prop({ type: { token: String, expiresIn: Number } })
+  forgotPasswordToken!: {
+    token: string
+    expiresIn: number
+  }
+
   @Prop({ default: Roles.client, enum: Roles })
   role!: Roles
 }

@@ -13,7 +13,9 @@ import { UsePipes } from '@nestjs/common'
 
 import { ParametersPipe } from '../common/pipes/parameters.pipe'
 import { User } from '../users/schema/user.schema'
+import { ForgotPasswordDto } from './dto/forgot-password.dto'
 import { RefreshTokenDto } from './dto/refresh-token.dto'
+import { ResetPasswordDto } from './dto/reset-password.dto'
 import { LocalAuthGuard } from './guards/local-auth.guard'
 import { SessionService } from './session.service'
 
@@ -44,5 +46,19 @@ export class SessionController {
   @UsePipes(ValidationPipe)
   async refreshToken(@Body() refreshTokenDto: RefreshTokenDto): Promise<SessionResponse> {
     return await this.sessionService.refreshToken(refreshTokenDto)
+  }
+
+  @HttpCode(200)
+  @Post('forgot-password')
+  @UsePipes(ValidationPipe)
+  async sendForgotPasswordEmail(@Body() forgotPassword: ForgotPasswordDto): Promise<void> {
+    await this.sessionService.sendForgotPasswordEmail(forgotPassword)
+  }
+
+  @HttpCode(200)
+  @Post('reset-password')
+  @UsePipes(ValidationPipe)
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto): Promise<void> {
+    await this.sessionService.resetPassword(resetPasswordDto)
   }
 }

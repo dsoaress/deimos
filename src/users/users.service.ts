@@ -87,9 +87,7 @@ export class UsersService {
     await this.userModel.findByIdAndUpdate({ _id }, { $set: updateUserDto })
   }
 
-  async updateEmailVerificationStatus(_id: string): Promise<void> {
-    await this.findOne(_id)
-
+  async setEmailVerificationStatus(_id: string): Promise<void> {
     await this.userModel.findByIdAndUpdate(
       { _id },
       {
@@ -99,15 +97,22 @@ export class UsersService {
     )
   }
 
-  async updateEmailVerificationToken(_id: string, token: string, expiresIn: number): Promise<void> {
-    const user = await this.findOne(_id)
-
+  async setEmailVerificationToken(_id: string, token: string, expiresIn: number): Promise<void> {
     await this.userModel.findByIdAndUpdate(
       { _id },
       { $set: { emailVerificationToken: { token, expiresIn } } }
     )
+  }
 
-    this.mailerService.sendVerificationEmail(user)
+  async setForgotPasswordToken(_id: string, token: string, expiresIn: number): Promise<void> {
+    await this.userModel.findByIdAndUpdate(
+      { _id },
+      { $set: { forgotPasswordToken: { token, expiresIn } } }
+    )
+  }
+
+  async resetPassword(_id: string, password: string): Promise<void> {
+    await this.userModel.findByIdAndUpdate({ _id }, { $set: { password: await hash(password, 8) } })
   }
 
   async delete(_id: string): Promise<void> {
