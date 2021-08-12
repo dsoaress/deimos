@@ -12,7 +12,7 @@ import {
 import { UsePipes } from '@nestjs/common'
 
 import { ParametersPipe } from '../common/pipes/parameters.pipe'
-import { User } from '../users/schema/user.schema'
+import { Roles, User } from '../users/schema/user.schema'
 import { ForgotPasswordDto } from './dto/forgot-password.dto'
 import { RefreshTokenDto } from './dto/refresh-token.dto'
 import { ResetPasswordDto } from './dto/reset-password.dto'
@@ -23,6 +23,12 @@ type SessionResponse = {
   accessToken: string
   refreshToken: string
 }
+
+export type UserRequest = {
+  userId: string
+  role: Roles
+}
+
 @Controller('session')
 export class SessionController {
   constructor(private readonly sessionService: SessionService) {}
