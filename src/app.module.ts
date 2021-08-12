@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
 import { MongooseModule } from '@nestjs/mongoose'
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
+import * as redisStore from 'cache-manager-redis-store'
 
 import { AppController } from './app.controller'
 import { MailerModule } from './mailer/mailer.module'
@@ -25,7 +26,12 @@ import { UsersModule } from './users/users.module'
       ttl: 60,
       limit: 10
     }),
-    CacheModule.register(),
+    CacheModule.register({
+      store: redisStore,
+      host: process.env.REDISHOST ?? '',
+      port: process.env.REDISPORT ?? '',
+      auth_pass: process.env.REDISPASSWORD ?? ''
+    }),
     UsersModule,
     TeamsModule,
     SessionModule,
