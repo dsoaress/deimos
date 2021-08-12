@@ -1,10 +1,17 @@
-FROM node:14-alpine as builder
+FROM node:14-alpine AS builder
 
-USER node
-WORKDIR /home/node
+WORKDIR /app
+COPY ./package.json ./
+RUN npm install
+COPY . .
+RUN npm run build
 
-COPY . /home/node
 
-RUN npm i -g yarn
-RUN yarn build
-RUN yarn start
+FROM node:14-alpine
+
+WORKDIR /app
+COPY --from=builder /app ./
+
+EXPOSE 3010
+
+CMD ["npm", "run", "start:prod"]
