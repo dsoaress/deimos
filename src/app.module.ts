@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common'
+import { CacheInterceptor, CacheModule, Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { APP_GUARD } from '@nestjs/core'
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
 import { MongooseModule } from '@nestjs/mongoose'
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 
@@ -25,6 +25,7 @@ import { UsersModule } from './users/users.module'
       ttl: 60,
       limit: 10
     }),
+    CacheModule.register(),
     UsersModule,
     TeamsModule,
     SessionModule,
@@ -35,6 +36,10 @@ import { UsersModule } from './users/users.module'
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInterceptor
     }
   ]
 })
