@@ -41,7 +41,7 @@ export class UsersService {
     return user
   }
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<void> {
     const { email, password } = createUserDto
 
     const emailExists = await this.userModel.findOne({ email })
@@ -57,12 +57,8 @@ export class UsersService {
     }
 
     const createdUser = new this.userModel(createUserDto)
-
     const user = await createdUser.save()
-
     this.mailerService.sendVerificationEmail(user)
-
-    return user
   }
 
   async update(_id: string, updateUserDto: UpdateUserDto): Promise<void> {

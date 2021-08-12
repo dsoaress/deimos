@@ -32,8 +32,8 @@ export class UsersController {
 
   @Post()
   @UsePipes(ValidationPipe)
-  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return await this.usersService.create(createUserDto)
+  async create(@Body() createUserDto: CreateUserDto): Promise<void> {
+    await this.usersService.create(createUserDto)
   }
 
   @Patch(':_id')
