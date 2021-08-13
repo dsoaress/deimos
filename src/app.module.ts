@@ -8,11 +8,17 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 
 // import * as redisStore from 'cache-manager-redis-store'
 import { AppController } from './app.controller'
+import { BrandModule } from './brand/brand.module'
+import { InviteModule } from './invite/invite.module'
 import { MailerModule } from './mailer/mailer.module'
+import { MessageModule } from './message/message.module'
+import { NotificationModule } from './notification/notification.module'
 import { Request } from './request/request.entity'
 import { RequestModule } from './request/request.module'
 import { Session } from './session/session.entity'
 import { SessionModule } from './session/session.module'
+import { StorageModule } from './storage/storage.module'
+import { SubscriptionModule } from './subscription/subscription.module'
 import { Team } from './team/team.entity'
 import { TeamModule } from './team/team.module'
 import { Token } from './token/token.entity'
@@ -46,7 +52,13 @@ import { UserModule } from './user/user.module'
     SessionModule,
     MailerModule,
     TokenModule,
-    RequestModule
+    RequestModule,
+    StorageModule,
+    InviteModule,
+    BrandModule,
+    SubscriptionModule,
+    MessageModule,
+    NotificationModule
   ],
   controllers: [AppController],
   providers: [
