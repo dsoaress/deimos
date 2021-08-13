@@ -99,6 +99,6 @@ export class UserService {
 
   async delete(id: string): Promise<void> {
     await this.findOne(id)
-    await this.userService.delete({ id })
+    await this.userService.delete(id)
   }
 }

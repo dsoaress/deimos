@@ -7,6 +7,8 @@ import * as redisStore from 'cache-manager-redis-store'
 
 import { AppController } from './app.controller'
 import { MailerModule } from './mailer/mailer.module'
+import { Request } from './request/request.entity'
+import { RequestModule } from './request/request.module'
 import { Session } from './session/session.entity'
 import { SessionModule } from './session/session.module'
 import { Team } from './team/team.entity'
@@ -24,7 +26,7 @@ import { UserModule } from './user/user.module'
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL ?? '',
-      entities: [User, Team, Token, Session],
+      entities: [User, Team, Request, Token, Session],
       synchronize: true
     }),
     ThrottlerModule.forRoot({
@@ -41,7 +43,8 @@ import { UserModule } from './user/user.module'
     TeamModule,
     SessionModule,
     MailerModule,
-    TokenModule
+    TokenModule,
+    RequestModule
   ],
   controllers: [AppController],
   providers: [

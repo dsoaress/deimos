@@ -28,9 +28,9 @@ export class TeamController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(':_id')
-  async findOne(@Param('_id', ParametersPipe) _id: string): Promise<Team> {
-    return await this.teamService.findOne(_id)
+  @Get(':id')
+  async findOne(@Param('id', ParametersPipe) id: string): Promise<Team> {
+    return await this.teamService.findOne(id)
   }
 
   @UseGuards(JwtAuthGuard)

@@ -4,6 +4,9 @@ import { Roles } from '../user.entity'
 
 export class UpdateUserDto {
   @IsOptional()
+  id?: string
+
+  @IsOptional()
   firstName?: string
 
   @IsOptional()

@@ -1,13 +1,7 @@
-import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator'
-
-import { User } from '../../user/user.entity'
+import { IsNotEmpty, IsString } from 'class-validator'
 
 export class CreateTeamDto {
   @IsNotEmpty()
   @IsString()
   name!: string
-
-  @IsOptional()
-  @IsArray()
-  users?: User[]
 }
