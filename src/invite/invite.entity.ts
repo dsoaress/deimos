@@ -3,35 +3,23 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
-  OneToMany,
   PrimaryColumn,
   UpdateDateColumn
 } from 'typeorm'
 import { v4 as uuid } from 'uuid'
 
-import { Message } from '../message/message.entity'
 import { Team } from '../team/team.entity'
-import { User } from '../user/user.entity'
 
-@Entity('request')
-export class Request {
+@Entity('invite')
+export class Invite {
   @PrimaryColumn()
   id!: string
 
   @Column()
-  name!: string
+  email!: string
 
-  @ManyToOne(() => User)
-  user!: User
-
-  @ManyToOne(() => User)
-  designer?: User
-
-  @ManyToOne(() => Team, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Team, team => team.invites, { onDelete: 'CASCADE' })
   team!: Team
-
-  @OneToMany(() => Message, message => message.request)
-  messages?: Message[]
 
   @CreateDateColumn()
   createdAt!: Date

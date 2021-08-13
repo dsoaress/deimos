@@ -1,6 +1,7 @@
 import { IsEmail, IsEnum, IsOptional, MinLength } from 'class-validator'
 
 import { File } from '../../file/file.entity'
+import { Team } from '../../team/team.entity'
 import { Roles } from '../user.entity'
 
 export class UpdateUserDto {
@@ -30,4 +31,7 @@ export class UpdateUserDto {
   @IsOptional()
   @IsEnum(Roles)
   role?: Roles
+
+  @IsOptional()
+  lastTeamViewed?: Team
 }

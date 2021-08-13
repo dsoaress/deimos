@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -41,5 +42,11 @@ export class TeamController {
     @Request() { user }: { user: UserRequest }
   ): Promise<Team> {
     return await this.teamService.create(createTeamDto, user.userId)
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async delete(@Param('id', ParametersPipe) id: string): Promise<void> {
+    await this.teamService.delete(id)
   }
 }

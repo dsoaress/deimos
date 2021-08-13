@@ -6,11 +6,16 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
+  OneToOne,
   PrimaryColumn,
   UpdateDateColumn
 } from 'typeorm'
 import { v4 as uuid } from 'uuid'
 
+import { Brand } from '../brand/brand.entity'
+import { Invite } from '../invite/invite.entity'
+import { Subscription } from '../subscription/subscription.entity'
 import { User } from '../user/user.entity'
 
 @Entity('team')
@@ -22,12 +27,21 @@ export class Team {
   name!: string
 
   @ManyToOne(() => User)
-  @JoinColumn()
   accountManager?: User
 
-  @ManyToMany(() => User, user => user.teams)
+  @OneToOne(() => Subscription, subscription => subscription.team)
+  @JoinColumn()
+  subscription!: Subscription
+
+  @ManyToMany(() => User, user => user.teams, { onDelete: 'SET NULL' })
   @JoinTable()
   users?: User[]
+
+  @OneToMany(() => Brand, brand => brand.team)
+  brands?: Brand[]
+
+  @OneToMany(() => Invite, invite => invite.team)
+  invites?: Invite[]
 
   @CreateDateColumn()
   createdAt!: Date

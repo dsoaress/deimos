@@ -6,6 +6,7 @@ import {
   JoinColumn,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryColumn,
   UpdateDateColumn
@@ -13,6 +14,7 @@ import {
 import { v4 as uuid } from 'uuid'
 
 import { File } from '../file/file.entity'
+import { Notification } from '../notification/notification.entity'
 import { Team } from '../team/team.entity'
 
 export enum Roles {
@@ -34,7 +36,7 @@ export class User {
   @Column()
   lastName!: string
 
-  @ManyToOne(() => File, { onDelete: 'CASCADE' })
+  @ManyToOne(() => File, { eager: true })
   @JoinColumn()
   avatar?: File
 
@@ -51,11 +53,14 @@ export class User {
   @Column({ type: 'enum', enum: Roles, default: Roles.client })
   role!: Roles
 
-  @OneToOne(() => Team)
+  @OneToMany(() => Notification, notification => notification.user)
+  notifications?: Notification[]
+
+  @OneToOne(() => Team, { onDelete: 'SET NULL' })
   @JoinColumn()
   lastTeamViewed?: Team
 
-  @ManyToMany(() => Team, team => team.users)
+  @ManyToMany(() => Team, team => team.users, { onDelete: 'SET NULL' })
   teams?: Team[]
 
   @CreateDateColumn()

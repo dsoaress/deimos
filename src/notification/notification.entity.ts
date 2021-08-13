@@ -3,25 +3,25 @@ import { v4 as uuid } from 'uuid'
 
 import { User } from '../user/user.entity'
 
-@Entity('file')
-export class File {
+@Entity('notification')
+export class Notification {
   @PrimaryColumn()
   id!: string
 
   @Column()
-  filename!: string
+  title!: string
+
+  @Column({ type: 'text' })
+  description!: string
 
   @Column()
-  filenameUrl!: string
+  url!: string
 
-  @Column()
-  type!: string
+  @Column({ default: false })
+  read!: boolean
 
-  @Column()
-  size!: number
-
-  @ManyToOne(() => User, { onDelete: 'SET NULL' })
-  createdBy!: User
+  @ManyToOne(() => User, user => user.notifications, { onDelete: 'CASCADE' })
+  user!: User
 
   @CreateDateColumn()
   createdAt!: Date

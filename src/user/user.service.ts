@@ -21,12 +21,12 @@ export class UserService {
   ) {}
 
   async findAll(): Promise<User[]> {
-    return await this.userService.find({ relations: ['avatar'] })
+    return await this.userService.find()
   }
 
   async findOne(id: string): Promise<User> {
     const user = await this.userService.findOne(id, {
-      relations: ['avatar', 'teams', 'lastTeamViewed']
+      relations: ['notifications', 'teams', 'lastTeamViewed']
     })
 
     if (!user) {

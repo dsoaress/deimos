@@ -1,27 +1,22 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryColumn } from 'typeorm'
 import { v4 as uuid } from 'uuid'
 
+import { Request } from '../request/request.entity'
 import { User } from '../user/user.entity'
 
-@Entity('file')
-export class File {
+@Entity('message')
+export class Message {
   @PrimaryColumn()
   id!: string
 
-  @Column()
-  filename!: string
-
-  @Column()
-  filenameUrl!: string
-
-  @Column()
-  type!: string
-
-  @Column()
-  size!: number
-
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
-  createdBy!: User
+  user!: User
+
+  @Column({ type: 'text' })
+  message!: string
+
+  @ManyToOne(() => Request, { onDelete: 'CASCADE' })
+  request!: Request
 
   @CreateDateColumn()
   createdAt!: Date
