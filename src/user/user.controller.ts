@@ -7,11 +7,13 @@ import {
   Param,
   Patch,
   Post,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
   UsePipes,
   ValidationPipe
 } from '@nestjs/common'
+import { FileInterceptor } from '@nestjs/platform-express'
 
 import { ParametersPipe } from '../common/pipes/parameters.pipe'
 import { JwtAuthGuard } from '../session/guards/jwt-auth.guard'
@@ -52,6 +54,16 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto
   ): Promise<void> {
     await this.userService.update(id, updateUserDto)
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('avatar/:id')
+  @UseInterceptors(FileInterceptor('file'))
+  async updateAvatar(
+    @UploadedFile() file: Express.Multer.File,
+    @Param('id', ParametersPipe) id: string
+  ): Promise<void> {
+    await this.userService.updateAvatar(file, id)
   }
 
   @UseGuards(JwtAuthGuard)

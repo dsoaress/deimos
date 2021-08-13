@@ -5,12 +5,14 @@ import {
   Entity,
   JoinColumn,
   ManyToMany,
+  ManyToOne,
   OneToOne,
   PrimaryColumn,
   UpdateDateColumn
 } from 'typeorm'
 import { v4 as uuid } from 'uuid'
 
+import { File } from '../file/file.entity'
 import { Team } from '../team/team.entity'
 
 export enum Roles {
@@ -32,8 +34,9 @@ export class User {
   @Column()
   lastName!: string
 
-  @Column({ nullable: true })
-  avatar?: string
+  @ManyToOne(() => File, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  avatar?: File
 
   @Column({ unique: true })
   email!: string

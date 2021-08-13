@@ -1,12 +1,6 @@
 version: '3'
 
 services:
-  mongo:
-    image: mongo
-    container_name: mongo
-    ports:
-      - 27018:27017
-
   postgres:
     image: postgres
     container_name: postgres

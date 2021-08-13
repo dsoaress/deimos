@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { compare, hash } from 'bcryptjs'
 import { Repository } from 'typeorm'
 
+import { FileService } from '../file/file.service'
 import { MailerService } from '../mailer/mailer.service'
 import { TokenService } from '../token/token.service'
 import { CreateUserDto } from './dto/create-user.dto'
@@ -14,16 +15,19 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private userService: Repository<User>,
+    private fileService: FileService,
     private tokenService: TokenService,
     private mailerService: MailerService
   ) {}
 
   async findAll(): Promise<User[]> {
-    return await this.userService.find()
+    return await this.userService.find({ relations: ['avatar'] })
   }
 
   async findOne(id: string): Promise<User> {
-    const user = await this.userService.findOne(id, { relations: ['teams', 'lastTeamViewed'] })
+    const user = await this.userService.findOne(id, {
+      relations: ['avatar', 'teams', 'lastTeamViewed']
+    })
 
     if (!user) {
       throw new NotFoundException('User not found')
@@ -86,6 +90,22 @@ export class UserService {
     }
 
     await this.userService.update(id, updateUserDto)
+  }
+
+  async updateAvatar(file: Express.Multer.File, id: string): Promise<void> {
+    const user = await this.findOne(id)
+    const oldAvatar = user?.avatar?.id
+
+    if (!file) {
+      throw new BadRequestException('File is required')
+    }
+
+    const avatar = await this.fileService.create(file, id)
+    await this.userService.update(id, { avatar })
+
+    if (oldAvatar) {
+      await this.fileService.delete(oldAvatar)
+    }
   }
 
   async setEmailVerificationStatus(id: string): Promise<void> {

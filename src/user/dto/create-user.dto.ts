@@ -19,10 +19,6 @@ export class CreateUserDto {
   @IsString()
   lastName!: string
 
-  @IsOptional()
-  @IsString()
-  avatar?: string
-
   @IsNotEmpty()
   @IsEmail()
   email!: string

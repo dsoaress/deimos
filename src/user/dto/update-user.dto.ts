@@ -1,5 +1,6 @@
 import { IsEmail, IsEnum, IsOptional, MinLength } from 'class-validator'
 
+import { File } from '../../file/file.entity'
 import { Roles } from '../user.entity'
 
 export class UpdateUserDto {
@@ -13,7 +14,7 @@ export class UpdateUserDto {
   lastName?: string
 
   @IsOptional()
-  avatar?: string
+  avatar?: File
 
   @IsOptional()
   @IsEmail()
