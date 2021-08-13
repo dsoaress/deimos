@@ -11,8 +11,8 @@ export class TokenService {
     private tokenService: Repository<Token>
   ) {}
 
-  async findOne(userId: string): Promise<Token> {
-    const tokenExists = await this.tokenService.findOne({ user: { id: userId } })
+  async findOne(token: string): Promise<Token> {
+    const tokenExists = await this.tokenService.findOne(token, { relations: ['user'] })
 
     if (!tokenExists) {
       throw new NotFoundException('Token not found')

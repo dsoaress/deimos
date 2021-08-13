@@ -48,15 +48,8 @@ export class SessionService {
 
   async signIn(user: User): Promise<Response> {
     if (!user.verified) {
-      const tokenExists = await this.tokenService.findOne(user.id)
-      const emailVerificationTokenExpired = dayjs().isAfter(dayjs.unix(tokenExists.expiresIn))
-
-      if (emailVerificationTokenExpired) {
-        const { token } = await this.tokenService.create(user.id)
-        this.mailerService.sendVerificationEmail(user, token)
-      } else {
-        this.mailerService.sendVerificationEmail(user, tokenExists.token)
-      }
+      const { token } = await this.tokenService.create(user.id)
+      this.mailerService.sendVerificationEmail(user, token)
 
       throw new ForbiddenException('Not verified email')
     }
@@ -73,28 +66,28 @@ export class SessionService {
     return { accessToken, refreshToken }
   }
 
-  async verifyEmail(id: string, token: string): Promise<void> {
-    const user = await this.userService.findOne(id)
+  async verifyEmail(userId: string, token: string): Promise<void> {
+    const user = await this.userService.findOne(userId)
 
     if (!user.verified) {
-      const tokenExists = await this.tokenService.findOne(id)
+      const tokenExists = await this.tokenService.findOne(token)
 
-      if (tokenExists.token !== token) {
+      if (tokenExists.user.id !== userId) {
         throw new BadRequestException('Token invalid')
       }
 
       const emailVerificationTokenExpired = dayjs().isAfter(dayjs.unix(tokenExists.expiresIn))
 
       if (emailVerificationTokenExpired) {
-        await this.userService.delete(tokenExists.token)
+        await this.tokenService.delete(tokenExists.token)
         const data = await this.tokenService.create(user.id)
         this.mailerService.sendVerificationEmail(user, data.token)
 
         throw new BadRequestException('Token expired')
       }
 
-      await this.userService.delete(tokenExists.token)
-      await this.userService.setEmailVerificationStatus(id)
+      await this.tokenService.delete(tokenExists.token)
+      await this.userService.setEmailVerificationStatus(userId)
     }
   }
 

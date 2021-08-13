@@ -51,7 +51,7 @@ export class MailerService {
         variables: {
           firstName: user.firstName,
           link: `http://localhost:3010/session/${user.id}/${token}`,
-          token
+          token: `http://localhost:3010/session/${user.id}/${token}`
         }
       }
     }
@@ -71,7 +71,7 @@ export class MailerService {
         variables: {
           firstName: user.firstName,
           link: `http://localhost:3000/auth/${user.id}/${token}`,
-          token
+          token: `http://localhost:3000/auth/${user.id}/${token}`
         }
       }
     }

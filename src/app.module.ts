@@ -1,10 +1,12 @@
-import { CacheInterceptor, CacheModule, Module } from '@nestjs/common'
+// import { CacheInterceptor, CacheModule, Module } from '@nestjs/common'
+import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
+// import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
+import { APP_GUARD } from '@nestjs/core'
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import * as redisStore from 'cache-manager-redis-store'
 
+// import * as redisStore from 'cache-manager-redis-store'
 import { AppController } from './app.controller'
 import { MailerModule } from './mailer/mailer.module'
 import { Request } from './request/request.entity'
@@ -33,12 +35,12 @@ import { UserModule } from './user/user.module'
       ttl: 60,
       limit: 10
     }),
-    CacheModule.register({
-      store: redisStore,
-      host: process.env.REDISHOST ?? '',
-      port: process.env.REDISPORT ?? '',
-      auth_pass: process.env.REDISPASSWORD ?? ''
-    }),
+    // CacheModule.register({
+    //   store: redisStore,
+    //   host: process.env.REDISHOST ?? '',
+    //   port: process.env.REDISPORT ?? '',
+    //   auth_pass: process.env.REDISPASSWORD ?? ''
+    // }),
     UserModule,
     TeamModule,
     SessionModule,
@@ -51,11 +53,11 @@ import { UserModule } from './user/user.module'
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: CacheInterceptor
     }
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: CacheInterceptor
+    // }
   ]
 })
 export class AppModule {}

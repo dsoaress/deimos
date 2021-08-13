@@ -39,12 +39,12 @@ export class SessionController {
     return this.sessionService.signIn(user)
   }
 
-  @Get(':_id/:token')
+  @Get(':userId/:token')
   async verifyEmail(
-    @Param('_id', ParametersPipe) _id: string,
-    @Param('token') token: string
+    @Param('userId', ParametersPipe) userId: string,
+    @Param('token', ParametersPipe) token: string
   ): Promise<void> {
-    await this.sessionService.verifyEmail(_id, token)
+    await this.sessionService.verifyEmail(userId, token)
   }
 
   @HttpCode(200)
