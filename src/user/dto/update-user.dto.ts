@@ -1,6 +1,6 @@
 import { IsEmail, IsEnum, IsOptional, MinLength } from 'class-validator'
 
-import { Roles } from '../schema/user.schema'
+import { Roles } from '../user.entity'
 
 export class UpdateUserDto {
   @IsOptional()

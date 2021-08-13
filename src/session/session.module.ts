@@ -1,20 +1,21 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { JwtModule } from '@nestjs/jwt'
-import { MongooseModule } from '@nestjs/mongoose'
 import { PassportModule } from '@nestjs/passport'
+import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { MailerModule } from '../mailer/mailer.module'
-import { UsersModule } from '../users/users.module'
-import { SessionSchema } from './schema/session.schema'
+import { TokenModule } from '../token/token.module'
+import { UserModule } from '../user/user.module'
 import { SessionController } from './session.controller'
+import { Session } from './session.entity'
 import { SessionService } from './session.service'
 import { JwtStrategy } from './strategies/jwt.strategy'
 import { LocalStrategy } from './strategies/local.strategy'
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Session', schema: SessionSchema }]),
+    TypeOrmModule.forFeature([Session]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -23,7 +24,8 @@ import { LocalStrategy } from './strategies/local.strategy'
       }),
       inject: [ConfigService]
     }),
-    UsersModule,
+    UserModule,
+    TokenModule,
     MailerModule,
     PassportModule
   ],

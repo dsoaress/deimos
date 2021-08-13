@@ -12,7 +12,7 @@ import {
 import { UsePipes } from '@nestjs/common'
 
 import { ParametersPipe } from '../common/pipes/parameters.pipe'
-import { Roles, User } from '../users/schema/user.schema'
+import { Roles, User } from '../user/user.entity'
 import { ForgotPasswordDto } from './dto/forgot-password.dto'
 import { RefreshTokenDto } from './dto/refresh-token.dto'
 import { ResetPasswordDto } from './dto/reset-password.dto'

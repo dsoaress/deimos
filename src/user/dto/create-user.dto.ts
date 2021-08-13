@@ -8,7 +8,8 @@ import {
   MinLength
 } from 'class-validator'
 
-import { Roles } from '../schema/user.schema'
+import { Roles } from '../user.entity'
+
 export class CreateUserDto {
   @IsNotEmpty()
   @IsString()

@@ -5,12 +5,12 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
+    "dev": "nest start --watch",
+    "dev:debug": "nest start --debug --watch",
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
@@ -27,10 +27,10 @@
     "@nestjs/config": "^1.0.1",
     "@nestjs/core": "^8.0.0",
     "@nestjs/jwt": "^8.0.0",
-    "@nestjs/mongoose": "^8.0.0",
     "@nestjs/passport": "^8.0.1",
     "@nestjs/platform-express": "^8.0.0",
     "@nestjs/throttler": "^2.0.0",
+    "@nestjs/typeorm": "^8.0.2",
     "bcryptjs": "^2.4.3",
     "cache-manager": "^3.4.4",
     "cache-manager-redis-store": "^2.0.0",
@@ -41,13 +41,14 @@
     "form-data": "^4.0.0",
     "handlebars": "^4.7.7",
     "mailgun.js": "^3.5.5",
-    "mongoose": "^5.13.6",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
+    "pg": "^8.7.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
+    "typeorm": "^0.2.36",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -80,7 +81,8 @@
     "ts-loader": "^9.2.3",
     "ts-node": "^10.0.0",
     "tsconfig-paths": "^3.10.1",
-    "typescript": "^4.3.5"
+    "typescript": "^4.3.5",
+    "webpack": "^5.50.0"
   },
   "jest": {
     "moduleFileExtensions": [

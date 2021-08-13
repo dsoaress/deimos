@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -7,6 +8,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe
 } from '@nestjs/common'
@@ -15,44 +17,46 @@ import { ParametersPipe } from '../common/pipes/parameters.pipe'
 import { JwtAuthGuard } from '../session/guards/jwt-auth.guard'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
-import { User } from './schema/user.schema'
-import { UsersService } from './users.service'
+import { User } from './user.entity'
+import { UserService } from './user.service'
 
 @Controller('users')
-export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+export class UserController {
+  constructor(private readonly userService: UserService) {}
 
   @UseGuards(JwtAuthGuard)
   @Get()
+  @UseInterceptors(ClassSerializerInterceptor)
   async findAll(): Promise<User[]> {
-    return await this.usersService.findAll()
+    return await this.userService.findAll()
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(':_id')
-  async findOne(@Param('_id', ParametersPipe) _id: string): Promise<User> {
-    return await this.usersService.findOne(_id)
+  @Get(':id')
+  @UseInterceptors(ClassSerializerInterceptor)
+  async findOne(@Param('id', ParametersPipe) id: string): Promise<User> {
+    return await this.userService.findOne(id)
   }
 
   @Post()
   @UsePipes(ValidationPipe)
   async create(@Body() createUserDto: CreateUserDto): Promise<void> {
-    await this.usersService.create(createUserDto)
+    await this.userService.create(createUserDto)
   }
 
   @UseGuards(JwtAuthGuard)
-  @Patch(':_id')
+  @Patch(':id')
   @UsePipes(ValidationPipe)
   async update(
-    @Param('_id', ParametersPipe) _id: string,
+    @Param('id', ParametersPipe) id: string,
     @Body() updateUserDto: UpdateUserDto
   ): Promise<void> {
-    await this.usersService.update(_id, updateUserDto)
+    await this.userService.update(id, updateUserDto)
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':_id')
-  async delete(@Param('_id', ParametersPipe) _id: string): Promise<void> {
-    await this.usersService.delete(_id)
+  @Delete(':id')
+  async delete(@Param('id', ParametersPipe) id: string): Promise<void> {
+    await this.userService.delete(id)
   }
 }

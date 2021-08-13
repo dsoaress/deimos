@@ -1,5 +1,6 @@
 import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator'
-import { User } from 'src/users/schema/user.schema'
+
+import { User } from '../../user/user.entity'
 
 export class CreateTeamDto {
   @IsNotEmpty()
@@ -8,5 +9,5 @@ export class CreateTeamDto {
 
   @IsOptional()
   @IsArray()
-  users!: User[]
+  users?: User[]
 }

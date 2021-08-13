@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import FormData from 'form-data'
 import handlebars from 'handlebars'
 import Mailgun from 'mailgun.js'
-import { User } from 'src/users/schema/user.schema'
+import { User } from 'src/user/user.entity'
 
 import { mailerConfig } from './constants'
 import { ParseMailDto } from './dto/parse-mail.dto'
@@ -39,7 +39,7 @@ export class MailerService {
       .catch((e: unknown) => console.error(e))
   }
 
-  async sendVerificationEmail(user: User): Promise<void> {
+  async sendVerificationEmail(user: User, token: string): Promise<void> {
     const message = {
       to: {
         name: `${user.firstName} ${user.lastName}`,
@@ -50,8 +50,8 @@ export class MailerService {
         template: verificationEmail,
         variables: {
           firstName: user.firstName,
-          link: `http://localhost:3010/auth/${user._id}/${user.emailVerificationToken.token}`,
-          token: user.emailVerificationToken.token
+          link: `http://localhost:3010/session/${user.id}/${token}`,
+          token
         }
       }
     }
@@ -59,7 +59,7 @@ export class MailerService {
     this.sendMail(message)
   }
 
-  async sendForgotPasswordEmail(user: User): Promise<void> {
+  async sendForgotPasswordEmail(user: User, token: string): Promise<void> {
     const message = {
       to: {
         name: `${user.firstName} ${user.lastName}`,
@@ -70,8 +70,8 @@ export class MailerService {
         template: forgotPassword,
         variables: {
           firstName: user.firstName,
-          link: `http://localhost:3000/auth/${user._id}/${user.forgotPasswordToken.token}`,
-          token: user.forgotPasswordToken.token
+          link: `http://localhost:3000/auth/${user.id}/${token}`,
+          token
         }
       }
     }
