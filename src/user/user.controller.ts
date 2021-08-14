@@ -9,15 +9,14 @@ import {
   Post,
   Request,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
   UsePipes,
   ValidationPipe
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 
+import { Public } from '../common/decorators/public-route.decorator'
 import { ParametersPipe } from '../common/pipes/parameters.pipe'
-import { JwtAuthGuard } from '../session/guards/jwt-auth.guard'
 import { UserRequest } from '../session/session.controller'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
@@ -28,34 +27,31 @@ import { UserService } from './user.service'
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
   async findAll(): Promise<User[]> {
     return await this.userService.findAll()
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('me')
   @UseInterceptors(ClassSerializerInterceptor)
   async findMe(@Request() { user }: { user: UserRequest }): Promise<User> {
     return await this.userService.findOne(user.userId)
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get(':id')
   @UseInterceptors(ClassSerializerInterceptor)
   async findOne(@Param('id', ParametersPipe) id: string): Promise<User> {
     return await this.userService.findOne(id)
   }
 
+  @Public()
   @Post()
   @UsePipes(ValidationPipe)
   async create(@Body() createUserDto: CreateUserDto): Promise<void> {
     await this.userService.create(createUserDto)
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   @UsePipes(ValidationPipe)
   async update(
@@ -65,7 +61,6 @@ export class UserController {
     await this.userService.update(id, updateUserDto)
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch('avatar/:id')
   @UseInterceptors(FileInterceptor('file'))
   async updateAvatar(
@@ -75,7 +70,6 @@ export class UserController {
     await this.userService.updateAvatar(file, id)
   }
 
-  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async delete(@Param('id', ParametersPipe) id: string): Promise<void> {
     await this.userService.delete(id)

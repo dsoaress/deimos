@@ -1,12 +1,10 @@
-// import { CacheInterceptor, CacheModule, Module } from '@nestjs/common'
-import { Module } from '@nestjs/common'
+import { CacheInterceptor, CacheModule, Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-// import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
-import { APP_GUARD } from '@nestjs/core'
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import * as redisStore from 'cache-manager-redis-store'
 
-// import * as redisStore from 'cache-manager-redis-store'
 import { AppController } from './app.controller'
 import { Brand } from './brand/brand.entity'
 import { BrandModule } from './brand/brand.module'
@@ -23,6 +21,7 @@ import { Org } from './org/org.entity'
 import { OrgModule } from './org/org.module'
 import { Request } from './request/request.entity'
 import { RequestModule } from './request/request.module'
+import { JwtAuthGuard } from './session/guards/jwt-auth.guard'
 import { Session } from './session/session.entity'
 import { SessionModule } from './session/session.module'
 import { Subscription } from './subscription/subscription.entity'
@@ -34,9 +33,7 @@ import { UserModule } from './user/user.module'
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true
-    }),
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL ?? '',
@@ -55,16 +52,13 @@ import { UserModule } from './user/user.module'
       ],
       synchronize: true
     }),
-    ThrottlerModule.forRoot({
-      ttl: 60,
-      limit: 10
+    ThrottlerModule.forRoot({ ttl: 60, limit: 10 }),
+    CacheModule.register({
+      store: redisStore,
+      host: process.env.REDISHOST ?? '',
+      port: process.env.REDISPORT ?? '',
+      auth_pass: process.env.REDISPASSWORD ?? ''
     }),
-    // CacheModule.register({
-    //   store: redisStore,
-    //   host: process.env.REDISHOST ?? '',
-    //   port: process.env.REDISPORT ?? '',
-    //   auth_pass: process.env.REDISPASSWORD ?? ''
-    // }),
     UserModule,
     OrgModule,
     SessionModule,
@@ -80,14 +74,9 @@ import { UserModule } from './user/user.module'
   ],
   controllers: [AppController],
   providers: [
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard
-    }
-    // {
-    //   provide: APP_INTERCEPTOR,
-    //   useClass: CacheInterceptor
-    // }
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_INTERCEPTOR, useClass: CacheInterceptor }
   ]
 })
 export class AppModule {}

@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common'
 import { UsePipes } from '@nestjs/common'
 
+import { Public } from '../common/decorators/public-route.decorator'
 import { ParametersPipe } from '../common/pipes/parameters.pipe'
 import { Roles, User } from '../user/user.entity'
 import { ForgotPasswordDto } from './dto/forgot-password.dto'
@@ -33,12 +34,14 @@ export type UserRequest = {
 export class SessionController {
   constructor(private readonly sessionService: SessionService) {}
 
+  @Public()
   @UseGuards(LocalAuthGuard)
   @Post()
   async signIn(@Request() { user }: { user: User }) {
     return this.sessionService.signIn(user)
   }
 
+  @Public()
   @Get(':userId/:token')
   async verifyEmail(
     @Param('userId', ParametersPipe) userId: string,
@@ -47,6 +50,7 @@ export class SessionController {
     await this.sessionService.verifyEmail(userId, token)
   }
 
+  @Public()
   @HttpCode(200)
   @Post('refresh-token')
   @UsePipes(ValidationPipe)
@@ -54,6 +58,7 @@ export class SessionController {
     return await this.sessionService.refreshToken(refreshTokenDto)
   }
 
+  @Public()
   @HttpCode(200)
   @Post('forgot-password')
   @UsePipes(ValidationPipe)
@@ -61,6 +66,7 @@ export class SessionController {
     await this.sessionService.sendForgotPasswordEmail(forgotPassword)
   }
 
+  @Public()
   @HttpCode(200)
   @Post('reset-password')
   @UsePipes(ValidationPipe)
