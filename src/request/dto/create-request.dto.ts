@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString } from 'class-validator'
 
-import { Team } from '../../team/team.entity'
+import { Org } from '../../org/org.entity'
 
 export class CreateRequestDto {
   @IsNotEmpty()
@@ -9,5 +9,5 @@ export class CreateRequestDto {
 
   @IsNotEmpty()
   @IsString()
-  team!: Team
+  org!: Org
 }

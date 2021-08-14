@@ -26,7 +26,7 @@ export class UserService {
 
   async findOne(id: string): Promise<User> {
     const user = await this.userService.findOne(id, {
-      relations: ['notifications', 'teams', 'lastTeamViewed']
+      relations: ['notifications', 'orgs', 'lastTeamViewed']
     })
 
     if (!user) {

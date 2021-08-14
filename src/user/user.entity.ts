@@ -15,7 +15,7 @@ import { v4 as uuid } from 'uuid'
 
 import { File } from '../file/file.entity'
 import { Notification } from '../notification/notification.entity'
-import { Team } from '../team/team.entity'
+import { Org } from '../org/org.entity'
 
 export enum Roles {
   client = 'client',
@@ -56,12 +56,12 @@ export class User {
   @OneToMany(() => Notification, notification => notification.user)
   notifications?: Notification[]
 
-  @OneToOne(() => Team, { onDelete: 'SET NULL' })
+  @OneToOne(() => Org, { onDelete: 'SET NULL' })
   @JoinColumn()
-  lastTeamViewed?: Team
+  lastOrgViewed?: Org
 
-  @ManyToMany(() => Team, team => team.users, { onDelete: 'SET NULL' })
-  teams?: Team[]
+  @ManyToMany(() => Org, org => org.users, { onDelete: 'SET NULL' })
+  orgs?: Org[]
 
   @CreateDateColumn()
   createdAt!: Date

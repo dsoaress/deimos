@@ -18,8 +18,8 @@ import { Invite } from '../invite/invite.entity'
 import { Subscription } from '../subscription/subscription.entity'
 import { User } from '../user/user.entity'
 
-@Entity('team')
-export class Team {
+@Entity('org')
+export class Org {
   @PrimaryColumn()
   id!: string
 
@@ -29,18 +29,18 @@ export class Team {
   @ManyToOne(() => User)
   accountManager?: User
 
-  @OneToOne(() => Subscription, subscription => subscription.team)
+  @OneToOne(() => Subscription, subscription => subscription.org, { cascade: true })
   @JoinColumn()
   subscription!: Subscription
 
-  @ManyToMany(() => User, user => user.teams, { onDelete: 'SET NULL' })
+  @ManyToMany(() => User, user => user.orgs, { onDelete: 'SET NULL' })
   @JoinTable()
   users?: User[]
 
-  @OneToMany(() => Brand, brand => brand.team)
+  @OneToMany(() => Brand, brand => brand.org)
   brands?: Brand[]
 
-  @OneToMany(() => Invite, invite => invite.team)
+  @OneToMany(() => Invite, invite => invite.org)
   invites?: Invite[]
 
   @CreateDateColumn()

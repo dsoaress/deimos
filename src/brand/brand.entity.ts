@@ -8,7 +8,7 @@ import {
 } from 'typeorm'
 import { v4 as uuid } from 'uuid'
 
-import { Team } from '../team/team.entity'
+import { Org } from '../org/org.entity'
 
 @Entity('brand')
 export class Brand {
@@ -18,8 +18,8 @@ export class Brand {
   @Column()
   name!: string
 
-  @ManyToOne(() => Team, team => team.brands, { onDelete: 'CASCADE' })
-  team!: Team
+  @ManyToOne(() => Org, org => org.brands, { onDelete: 'CASCADE' })
+  org!: Org
 
   @CreateDateColumn()
   createdAt!: Date

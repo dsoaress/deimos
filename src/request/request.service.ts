@@ -14,12 +14,12 @@ export class RequestService {
   ) {}
 
   async findAll(): Promise<Request[]> {
-    return await this.requestService.find({ relations: ['user', 'designer', 'team'] })
+    return await this.requestService.find({ relations: ['user', 'designer', 'org'] })
   }
 
   async findOne(id: string): Promise<Request> {
     const request = await this.requestService.findOne(id, {
-      relations: ['user', 'designer', 'team']
+      relations: ['user', 'designer', 'org']
     })
 
     if (!request) {

@@ -10,7 +10,7 @@ import {
 import { v4 as uuid } from 'uuid'
 
 import { Message } from '../message/message.entity'
-import { Team } from '../team/team.entity'
+import { Org } from '../org/org.entity'
 import { User } from '../user/user.entity'
 
 @Entity('request')
@@ -27,8 +27,8 @@ export class Request {
   @ManyToOne(() => User)
   designer?: User
 
-  @ManyToOne(() => Team, { onDelete: 'CASCADE' })
-  team!: Team
+  @ManyToOne(() => Org, { onDelete: 'CASCADE' })
+  org!: Org
 
   @OneToMany(() => Message, message => message.request)
   messages?: Message[]

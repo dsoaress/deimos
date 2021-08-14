@@ -8,7 +8,7 @@ import {
 } from 'typeorm'
 import { v4 as uuid } from 'uuid'
 
-import { Team } from '../team/team.entity'
+import { Org } from '../org/org.entity'
 
 export enum Status {
   active = 'active',
@@ -33,8 +33,8 @@ export class Subscription {
   @Column({ type: 'enum', enum: Plans, default: Plans.none })
   plan!: Plans
 
-  @OneToOne(() => Team, { onDelete: 'CASCADE' })
-  team!: Team
+  @OneToOne(() => Org, { onDelete: 'CASCADE' })
+  org!: Org
 
   @CreateDateColumn()
   createdAt!: Date

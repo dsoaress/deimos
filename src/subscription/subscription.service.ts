@@ -11,9 +11,9 @@ export class SubscriptionService {
     private subscriptionService: Repository<Subscription>
   ) {}
 
-  async create(teamId: string): Promise<void> {
+  async create(orgId: string): Promise<void> {
     const subscription = this.subscriptionService.create({
-      team: { id: teamId }
+      org: { id: orgId }
     })
 
     await this.subscriptionService.save(subscription)
