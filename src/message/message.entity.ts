@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryColumn } from 'typeorm'
+import { BeforeInsert, Column, CreateDateColumn, Entity, ManyToOne, PrimaryColumn } from 'typeorm'
 import { v4 as uuid } from 'uuid'
 
 import { Request } from '../request/request.entity'
@@ -21,9 +21,8 @@ export class Message {
   @CreateDateColumn()
   createdAt!: Date
 
-  constructor() {
-    if (!this.id) {
-      this.id = uuid()
-    }
+  @BeforeInsert()
+  generateUuid() {
+    this.id = uuid()
   }
 }

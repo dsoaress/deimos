@@ -1,5 +1,8 @@
+import { hashSync } from 'bcryptjs'
 import { Exclude } from 'class-transformer'
 import {
+  AfterUpdate,
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -69,9 +72,13 @@ export class User {
   @UpdateDateColumn()
   updatedAt!: Date
 
-  constructor() {
-    if (!this.id) {
-      this.id = uuid()
-    }
+  @BeforeInsert()
+  generateUuid() {
+    this.id = uuid()
+  }
+
+  @BeforeInsert()
+  hashPassword() {
+    this.password = hashSync(this.password, 8)
   }
 }

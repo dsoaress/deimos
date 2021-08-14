@@ -1,4 +1,5 @@
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -42,9 +43,8 @@ export class Subscription {
   @UpdateDateColumn()
   updatedAt!: Date
 
-  constructor() {
-    if (!this.id) {
-      this.id = uuid()
-    }
+  @BeforeInsert()
+  generateUuid() {
+    this.id = uuid()
   }
 }

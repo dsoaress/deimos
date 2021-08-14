@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { compare, hash } from 'bcryptjs'
+import { compare } from 'bcryptjs'
 import { Repository } from 'typeorm'
 
 import { FileService } from '../file/file.service'
@@ -26,7 +26,7 @@ export class UserService {
 
   async findOne(id: string): Promise<User> {
     const user = await this.userService.findOne(id, {
-      relations: ['notifications', 'orgs', 'lastTeamViewed']
+      relations: ['notifications', 'orgs', 'lastOrgViewed']
     })
 
     if (!user) {
@@ -47,23 +47,20 @@ export class UserService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<void> {
-    const { email, password } = createUserDto
-
-    const emailExists = await this.userService.findOne({ email })
+    const emailExists = await this.userService.findOne({
+      email: createUserDto.email
+    })
 
     if (emailExists) {
       throw new BadRequestException('Email already registered')
     }
 
-    const user = this.userService.create({
-      ...createUserDto,
-      password: await hash(password, 8)
-    })
+    const user = this.userService.create(createUserDto)
 
     await this.userService.save(user)
     const { token } = await this.tokenService.create(user.id)
 
-    this.mailerService.sendVerificationEmail(user, token)
+    // this.mailerService.sendVerificationEmail(user, token)
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<void> {
@@ -86,7 +83,6 @@ export class UserService {
       }
 
       delete updateUserDto.oldPassword
-      updateUserDto.password = await hash(password, 8)
     }
 
     await this.userService.update(id, updateUserDto)
@@ -114,7 +110,7 @@ export class UserService {
 
   async resetPassword(id: string, password: string): Promise<void> {
     await this.findOne(id)
-    await this.userService.update(id, { password: await hash(password, 8) })
+    await this.userService.update(id, { password })
   }
 
   async delete(id: string): Promise<void> {

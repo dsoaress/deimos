@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Request,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -17,6 +18,7 @@ import { FileInterceptor } from '@nestjs/platform-express'
 
 import { ParametersPipe } from '../common/pipes/parameters.pipe'
 import { JwtAuthGuard } from '../session/guards/jwt-auth.guard'
+import { UserRequest } from '../session/session.controller'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { User } from './user.entity'
@@ -31,6 +33,13 @@ export class UserController {
   @UseInterceptors(ClassSerializerInterceptor)
   async findAll(): Promise<User[]> {
     return await this.userService.findAll()
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  @UseInterceptors(ClassSerializerInterceptor)
+  async findMe(@Request() { user }: { user: UserRequest }): Promise<User> {
+    return await this.userService.findOne(user.userId)
   }
 
   @UseGuards(JwtAuthGuard)

@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 
-import { UserService } from '../user/user.service'
 import { CreateOrgDto } from './dto/create-org.dto'
 import { UpdateOrgDto } from './dto/update-org.dto'
 import { Org } from './org.entity'
@@ -11,8 +10,7 @@ import { Org } from './org.entity'
 export class OrgService {
   constructor(
     @InjectRepository(Org)
-    private orgService: Repository<Org>,
-    private userService: UserService
+    private orgService: Repository<Org>
   ) {}
 
   async findAll(): Promise<Org[]> {

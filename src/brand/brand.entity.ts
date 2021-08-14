@@ -1,4 +1,5 @@
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -27,9 +28,8 @@ export class Brand {
   @UpdateDateColumn()
   updatedAt!: Date
 
-  constructor() {
-    if (!this.id) {
-      this.id = uuid()
-    }
+  @BeforeInsert()
+  generateUuid() {
+    this.id = uuid()
   }
 }
