@@ -60,7 +60,7 @@ export class UserService {
     await this.userService.save(user)
     const { token } = await this.tokenService.create(user.id)
 
-    // this.mailerService.sendVerificationEmail(user, token)
+    this.mailerService.sendVerificationEmail(user, token)
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<void> {

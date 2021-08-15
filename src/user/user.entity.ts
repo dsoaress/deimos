@@ -1,7 +1,6 @@
 import { hashSync } from 'bcryptjs'
 import { Exclude } from 'class-transformer'
 import {
-  AfterUpdate,
   BeforeInsert,
   Column,
   CreateDateColumn,

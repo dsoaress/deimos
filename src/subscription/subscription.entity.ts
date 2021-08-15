@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   OneToOne,
   PrimaryColumn,
   UpdateDateColumn
@@ -11,30 +12,22 @@ import { v4 as uuid } from 'uuid'
 
 import { Org } from '../org/org.entity'
 
-export enum Status {
-  active = 'active',
-  inactive = 'inactive'
-}
-
-export enum Plans {
-  none = 'none',
-  standard = 'standard',
-  freelancer = 'freelancer',
-  enterprise = 'enterprise'
-}
-
 @Entity('subscription')
 export class Subscription {
   @PrimaryColumn()
   id!: string
 
-  @Column({ type: 'enum', enum: Status, default: Status.inactive })
-  status!: Status
+  @Column()
+  stripeCustomerId!: string
 
-  @Column({ type: 'enum', enum: Plans, default: Plans.none })
-  plan!: Plans
+  @Column({ nullable: true })
+  stripeSubscriptionId?: string
 
-  @OneToOne(() => Org, { onDelete: 'CASCADE' })
+  @Column({ nullable: true })
+  status?: string
+
+  @OneToOne(() => Org, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+  @JoinColumn()
   org!: Org
 
   @CreateDateColumn()

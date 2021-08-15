@@ -19,7 +19,7 @@ export class OrgService {
 
   async findOne(id: string): Promise<Org> {
     const org = await this.orgService.findOne(id, {
-      relations: ['accountManager', 'subscription', 'users', 'brands', 'invites']
+      relations: ['users', 'brands', 'invites']
     })
 
     if (!org) {
@@ -32,8 +32,7 @@ export class OrgService {
   async create(createOrgDto: CreateOrgDto, userId: string): Promise<Org> {
     const org = this.orgService.create({
       ...createOrgDto,
-      users: [{ id: userId }],
-      subscription: this.orgService.create()
+      owner: { id: userId }
     })
 
     await this.orgService.save(org)

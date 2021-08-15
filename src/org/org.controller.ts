@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -7,6 +8,7 @@ import {
   Patch,
   Post,
   Request,
+  UseInterceptors,
   UsePipes,
   ValidationPipe
 } from '@nestjs/common'
@@ -23,16 +25,19 @@ export class OrgController {
   constructor(private readonly orgService: OrgService) {}
 
   @Get()
+  @UseInterceptors(ClassSerializerInterceptor)
   async findAll(): Promise<Org[]> {
     return await this.orgService.findAll()
   }
 
   @Get(':id')
+  @UseInterceptors(ClassSerializerInterceptor)
   async findOne(@Param('id', ParametersPipe) id: string): Promise<Org> {
     return await this.orgService.findOne(id)
   }
 
   @Post()
+  @UseInterceptors(ClassSerializerInterceptor)
   @UsePipes(ValidationPipe)
   async create(
     @Body() createOrgDto: CreateOrgDto,
@@ -42,6 +47,7 @@ export class OrgController {
   }
 
   @Patch(':id')
+  @UseInterceptors(ClassSerializerInterceptor)
   @UsePipes(ValidationPipe)
   async update(
     @Param('id', ParametersPipe) id: string,

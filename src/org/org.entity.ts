@@ -27,12 +27,15 @@ export class Org {
   @Column()
   name!: string
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { eager: true })
   accountManager?: User
 
-  @OneToOne(() => Subscription, subscription => subscription.org, { cascade: true })
-  @JoinColumn()
+  @OneToOne(() => Subscription, subscription => subscription.org, { eager: true })
   subscription!: Subscription
+
+  @ManyToOne(() => User, { eager: true })
+  @JoinColumn()
+  owner!: User
 
   @ManyToMany(() => User, user => user.orgs, { onDelete: 'SET NULL' })
   @JoinTable()

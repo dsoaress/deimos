@@ -24,6 +24,7 @@ import { RequestModule } from './request/request.module'
 import { JwtAuthGuard } from './session/guards/jwt-auth.guard'
 import { Session } from './session/session.entity'
 import { SessionModule } from './session/session.module'
+import { StripeModule } from './stripe/stripe.module'
 import { Subscription } from './subscription/subscription.entity'
 import { SubscriptionModule } from './subscription/subscription.module'
 import { Token } from './token/token.entity'
@@ -52,7 +53,7 @@ import { UserModule } from './user/user.module'
       ],
       synchronize: true
     }),
-    ThrottlerModule.forRoot({ ttl: 60, limit: 10 }),
+    ThrottlerModule.forRoot({ ttl: 60, limit: 50 }),
     CacheModule.register({
       store: redisStore,
       host: process.env.REDISHOST ?? '',
@@ -70,7 +71,8 @@ import { UserModule } from './user/user.module'
     BrandModule,
     SubscriptionModule,
     MessageModule,
-    NotificationModule
+    NotificationModule,
+    StripeModule
   ],
   controllers: [AppController],
   providers: [
