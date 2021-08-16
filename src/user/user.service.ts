@@ -1,10 +1,11 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import { MailerService } from '@nestjs-modules/mailer'
 import { compare } from 'bcryptjs'
+import { paginate, PaginateQuery } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
 import { FileService } from '../file/file.service'
-import { MailerService } from '../mailer/mailer.service'
 import { TokenService } from '../token/token.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
@@ -16,12 +17,20 @@ export class UserService {
     @InjectRepository(User)
     private userService: Repository<User>,
     private fileService: FileService,
-    private tokenService: TokenService,
-    private mailerService: MailerService
+    private mailerService: MailerService,
+    private tokenService: TokenService
   ) {}
 
-  async findAll() {
-    return await this.userService.find()
+  async findAll(query: PaginateQuery) {
+    return paginate(
+      query,
+      this.userService.createQueryBuilder('user').leftJoinAndSelect('user.avatar', 'avatar'),
+      {
+        sortableColumns: ['id', 'firstName', 'lastName', 'createdAt', 'updatedAt'],
+        searchableColumns: ['email', 'fullName'],
+        defaultSortBy: [['firstName', 'DESC']]
+      }
+    )
   }
 
   async findOne(id: string) {
@@ -60,7 +69,11 @@ export class UserService {
     await this.userService.save(user)
     const { token } = await this.tokenService.create(user.id)
 
-    this.mailerService.sendVerificationEmail(user, token)
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Verify your email',
+      html: `<p>User id: ${user.id}</p> <p>Token: ${token}</p>`
+    })
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
@@ -88,7 +101,7 @@ export class UserService {
     await this.userService.update(id, updateUserDto)
   }
 
-  async updateAvatar(file: Express.Multer.File, id: string) {
+  async updateAvatar(id: string, file: Express.Multer.File) {
     const user = await this.findOne(id)
     const oldAvatar = user?.avatar?.id
 

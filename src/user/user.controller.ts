@@ -7,17 +7,16 @@ import {
   Param,
   Patch,
   Post,
-  Request,
-  UploadedFile,
   UseInterceptors,
   UsePipes,
   ValidationPipe
 } from '@nestjs/common'
-import { FileInterceptor } from '@nestjs/platform-express'
+import { Paginate, PaginateQuery } from 'nestjs-paginate'
 
 import { Public } from '../common/decorators/public-route.decorator'
+import { Roles } from '../common/decorators/roles.decorator'
+import { Role } from '../common/enums/role.enum'
 import { ParametersPipe } from '../common/pipes/parameters.pipe'
-import { UserRequest } from '../session/session.controller'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UserService } from './user.service'
@@ -27,18 +26,14 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
+  @Roles(Role.admin, Role.supervisor)
   @UseInterceptors(ClassSerializerInterceptor)
-  async findAll() {
-    return await this.userService.findAll()
-  }
-
-  @Get('me')
-  @UseInterceptors(ClassSerializerInterceptor)
-  async findMe(@Request() { user }: { user: UserRequest }) {
-    return await this.userService.findOne(user.userId)
+  async findAll(@Paginate() query: PaginateQuery) {
+    return await this.userService.findAll(query)
   }
 
   @Get(':id')
+  @Roles(Role.admin, Role.supervisor)
   @UseInterceptors(ClassSerializerInterceptor)
   async findOne(@Param('id', ParametersPipe) id: string) {
     return await this.userService.findOne(id)
@@ -52,21 +47,14 @@ export class UserController {
   }
 
   @Patch(':id')
+  @Roles(Role.admin, Role.supervisor)
   @UsePipes(ValidationPipe)
   async update(@Param('id', ParametersPipe) id: string, @Body() updateUserDto: UpdateUserDto) {
     await this.userService.update(id, updateUserDto)
   }
 
-  @Patch('avatar/:id')
-  @UseInterceptors(FileInterceptor('file'))
-  async updateAvatar(
-    @UploadedFile() file: Express.Multer.File,
-    @Param('id', ParametersPipe) id: string
-  ) {
-    await this.userService.updateAvatar(file, id)
-  }
-
   @Delete(':id')
+  @Roles(Role.admin)
   async delete(@Param('id', ParametersPipe) id: string) {
     await this.userService.delete(id)
   }

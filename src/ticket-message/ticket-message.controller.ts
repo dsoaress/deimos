@@ -29,7 +29,7 @@ export class TicketMessageController {
     @Body() createTicketMessageDto: CreateTicketMessageDto,
     @Request() { user }: { user: UserRequest }
   ) {
-    return await this.ticketMessageService.create(createTicketMessageDto, user.userId)
+    return await this.ticketMessageService.create(createTicketMessageDto, user.id)
   }
 
   @Patch(':id')

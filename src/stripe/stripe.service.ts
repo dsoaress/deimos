@@ -9,6 +9,7 @@ import { Readable } from 'stream'
 import Stripe from 'stripe'
 
 import { Org } from '../org/org.entity'
+import { constants } from './constants'
 
 @Injectable()
 export class StripeService {
@@ -104,8 +105,8 @@ export class StripeService {
       ],
       mode: 'subscription',
       allow_promotion_codes: true,
-      success_url: 'https://google.com',
-      cancel_url: 'https://bing.com'
+      success_url: constants.cancelUrl,
+      cancel_url: constants.cancelUrl
     })
 
     if (!stripeCheckoutSession.url) {
@@ -157,7 +158,7 @@ export class StripeService {
     let event: Stripe.Event
 
     try {
-      event = stripe.webhooks.constructEvent(buf, secret, 'whsec_tmfiQR7k7mD8hsiT14vrq8vfdDygDJGf')
+      event = stripe.webhooks.constructEvent(buf, secret, constants.webhookSecret)
     } catch (err) {
       throw new BadRequestException(err.message)
     }
@@ -166,12 +167,6 @@ export class StripeService {
   }
 
   stripeClient() {
-    const { STRIPE_API_KEY } = process.env
-
-    if (!STRIPE_API_KEY) {
-      throw new Error('STRIPE_API_KEY is missing')
-    }
-
-    return new Stripe(STRIPE_API_KEY, { apiVersion: '2020-08-27' })
+    return new Stripe(constants.apiKey, { apiVersion: '2020-08-27' })
   }
 }

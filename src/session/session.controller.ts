@@ -5,24 +5,25 @@ import {
   HttpCode,
   Param,
   Post,
-  Request,
+  Req,
   UseGuards,
   ValidationPipe
 } from '@nestjs/common'
 import { UsePipes } from '@nestjs/common'
 
 import { Public } from '../common/decorators/public-route.decorator'
+import { Role } from '../common/enums/role.enum'
+import { LocalAuthGuard } from '../common/guards/local-auth.guard'
 import { ParametersPipe } from '../common/pipes/parameters.pipe'
-import { Roles, User } from '../user/user.entity'
+import { User } from '../user/user.entity'
 import { ForgotPasswordDto } from './dto/forgot-password.dto'
 import { RefreshTokenDto } from './dto/refresh-token.dto'
 import { ResetPasswordDto } from './dto/reset-password.dto'
-import { LocalAuthGuard } from './guards/local-auth.guard'
 import { SessionService } from './session.service'
 
 export type UserRequest = {
-  userId: string
-  role: Roles
+  id: string
+  role: Role
 }
 
 @Controller('session')
@@ -32,7 +33,7 @@ export class SessionController {
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post()
-  async signIn(@Request() { user }: { user: User }) {
+  async signIn(@Req() { user }: { user: User }) {
     return this.sessionService.signIn(user)
   }
 

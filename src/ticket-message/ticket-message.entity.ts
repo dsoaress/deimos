@@ -1,4 +1,3 @@
-import { Ticket } from 'src/ticket/ticket.entity'
 import {
   BeforeInsert,
   Column,
@@ -10,6 +9,7 @@ import {
 } from 'typeorm'
 import { v4 as uuid } from 'uuid'
 
+import { Ticket } from '../ticket/ticket.entity'
 import { User } from '../user/user.entity'
 
 @Entity('ticket_message')

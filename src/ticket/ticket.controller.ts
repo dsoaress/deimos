@@ -12,8 +12,8 @@ import {
   UsePipes,
   ValidationPipe
 } from '@nestjs/common'
-import { ParametersPipe } from 'src/common/pipes/parameters.pipe'
 
+import { ParametersPipe } from '../common/pipes/parameters.pipe'
 import { UserRequest } from '../session/session.controller'
 import { CreateTicketDto } from './dto/create-ticket.dto'
 import { UpdateTicketDto } from './dto/update-ticket.dto'
@@ -42,7 +42,7 @@ export class TicketController {
     @Body() createTicketDto: CreateTicketDto,
     @Request() { user }: { user: UserRequest }
   ) {
-    return await this.ticketService.create(createTicketDto, user.userId)
+    return await this.ticketService.create(createTicketDto, user.id)
   }
 
   @Patch(':id')

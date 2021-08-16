@@ -6,11 +6,11 @@ import {
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { InjectRepository } from '@nestjs/typeorm'
+import { MailerService } from '@nestjs-modules/mailer'
 import { compare } from 'bcryptjs'
 import dayjs from 'dayjs'
 import { Repository } from 'typeorm'
 
-import { MailerService } from '../mailer/mailer.service'
 import { User } from '../user/user.entity'
 import { UserService } from '../user/user.service'
 import { TokenService } from './../token/token.service'
@@ -25,8 +25,8 @@ export class SessionService {
     @InjectRepository(Session)
     private sessionService: Repository<Session>,
     private userService: UserService,
-    private tokenService: TokenService,
     private mailerService: MailerService,
+    private tokenService: TokenService,
     private jwtService: JwtService
   ) {}
 
@@ -44,7 +44,12 @@ export class SessionService {
   async signIn(user: User) {
     if (!user.verified) {
       const { token } = await this.tokenService.create(user.id)
-      this.mailerService.sendVerificationEmail(user, token)
+
+      await this.mailerService.sendMail({
+        to: user.email,
+        subject: 'Verify your email',
+        html: `<p>User id: ${user.id}</p> <p>Token: ${token}</p>`
+      })
 
       throw new ForbiddenException('Not verified email')
     }
@@ -76,7 +81,12 @@ export class SessionService {
       if (emailVerificationTokenExpired) {
         await this.tokenService.delete(tokenExists.token)
         const data = await this.tokenService.create(user.id)
-        this.mailerService.sendVerificationEmail(user, data.token)
+
+        await this.mailerService.sendMail({
+          to: user.email,
+          subject: 'Verify your email',
+          html: `<p>User id: ${user.id}</p> <p>Token: ${data.token}</p>`
+        })
 
         throw new BadRequestException('Token expired')
       }
@@ -113,12 +123,15 @@ export class SessionService {
     const user = await this.userService.findOneByEmail(email)
     const { token } = await this.tokenService.create(user.id)
 
-    this.mailerService.sendForgotPasswordEmail(user, token)
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Reset your password',
+      html: `<p>User id: ${user.id}</p> <p>Token: ${token}</p>`
+    })
   }
 
-  async resetPassword({ email, token, password }: ResetPasswordDto) {
-    const user = await this.userService.findOneByEmail(email)
-    const tokenExists = await this.tokenService.findOne(user.id)
+  async resetPassword({ token, password }: ResetPasswordDto) {
+    const tokenExists = await this.tokenService.findOne(token)
 
     if (tokenExists.token === token) {
       const forgotPasswordTokenExpired = dayjs().isAfter(dayjs.unix(tokenExists.expiresIn))
@@ -127,7 +140,7 @@ export class SessionService {
         throw new BadRequestException('Token expired')
       }
 
-      await this.userService.resetPassword(user.id, password)
+      await this.userService.resetPassword(tokenExists.user.id, password)
     } else {
       throw new BadRequestException('Token invalid')
     }

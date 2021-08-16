@@ -1,24 +1,22 @@
-import { IsEmail, IsEnum, IsOptional, MinLength } from 'class-validator'
+import { IsEmail, IsOptional, IsString, IsUUID, MinLength } from 'class-validator'
 
-import { File } from '../../file/file.entity'
 import { Org } from '../../org/org.entity'
-import { Roles } from '../user.entity'
 
 export class UpdateUserDto {
   @IsOptional()
+  @IsString()
   firstName?: string
 
   @IsOptional()
+  @IsString()
   lastName?: string
-
-  @IsOptional()
-  avatar?: File
 
   @IsOptional()
   @IsEmail()
   email?: string
 
   @IsOptional()
+  @IsString()
   oldPassword?: string
 
   @IsOptional()
@@ -26,9 +24,6 @@ export class UpdateUserDto {
   password?: string
 
   @IsOptional()
-  @IsEnum(Roles)
-  role?: Roles
-
-  @IsOptional()
+  @IsUUID()
   lastOrgViewed?: Org
 }

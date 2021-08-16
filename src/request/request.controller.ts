@@ -37,7 +37,7 @@ export class RequestController {
     @Body() createRequestDto: CreateRequestDto,
     @Request() { user }: { user: UserRequest }
   ) {
-    return await this.requestService.create(createRequestDto, user.userId)
+    return await this.requestService.create(createRequestDto, user.id)
   }
 
   @Patch(':id')

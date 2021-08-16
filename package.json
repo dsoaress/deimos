@@ -23,6 +23,7 @@
     "postversion": "git push --tags && git push"
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "^1.6.0",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^1.0.1",
     "@nestjs/core": "^8.0.0",
@@ -39,9 +40,9 @@
     "class-validator": "^0.13.1",
     "dayjs": "^1.10.6",
     "dotenv": "^10.0.0",
-    "form-data": "^4.0.0",
     "handlebars": "^4.7.7",
-    "mailgun.js": "^3.5.5",
+    "nestjs-paginate": "^1.1.8",
+    "nodemailer": "^6.6.3",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",

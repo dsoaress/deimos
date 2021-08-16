@@ -9,9 +9,9 @@ import {
   UseInterceptors
 } from '@nestjs/common'
 import { Request } from 'express'
-import { ParametersPipe } from 'src/common/pipes/parameters.pipe'
 
 import { Public } from '../common/decorators/public-route.decorator'
+import { ParametersPipe } from '../common/pipes/parameters.pipe'
 import { SubscriptionService } from './subscription.service'
 
 @Controller('subscriptions')

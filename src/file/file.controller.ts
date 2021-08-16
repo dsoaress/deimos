@@ -10,9 +10,9 @@ import {
   UseInterceptors
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
-import { ParametersPipe } from 'src/common/pipes/parameters.pipe'
-import { UserRequest } from 'src/session/session.controller'
 
+import { ParametersPipe } from '../common/pipes/parameters.pipe'
+import { UserRequest } from '../session/session.controller'
 import { FileService } from './file.service'
 
 @Controller('files')
@@ -37,7 +37,7 @@ export class FileController {
     @UploadedFile() file: Express.Multer.File,
     @Request() { user }: { user: UserRequest }
   ) {
-    return await this.fileService.create(file, user.userId)
+    return await this.fileService.create(file, user.id)
   }
 
   @Delete(':id')

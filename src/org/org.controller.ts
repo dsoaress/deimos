@@ -39,7 +39,7 @@ export class OrgController {
   @UseInterceptors(ClassSerializerInterceptor)
   @UsePipes(ValidationPipe)
   async create(@Body() createOrgDto: CreateOrgDto, @Request() { user }: { user: UserRequest }) {
-    return await this.orgService.create(createOrgDto, user.userId)
+    return await this.orgService.create(createOrgDto, user.id)
   }
 
   @Patch(':id')

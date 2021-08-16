@@ -1,7 +1,8 @@
 import { hashSync } from 'bcryptjs'
-import { Exclude } from 'class-transformer'
+import { Exclude, Expose } from 'class-transformer'
 import {
   BeforeInsert,
+  BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
@@ -15,17 +16,10 @@ import {
 } from 'typeorm'
 import { v4 as uuid } from 'uuid'
 
+import { Role } from '../common/enums/role.enum'
 import { File } from '../file/file.entity'
 import { Notification } from '../notification/notification.entity'
 import { Org } from '../org/org.entity'
-
-export enum Roles {
-  client = 'client',
-  designer = 'designer',
-  account_manager = 'account_manager',
-  supervisor = 'supervisor',
-  admin = 'admin'
-}
 
 @Entity('user')
 export class User {
@@ -38,9 +32,23 @@ export class User {
   @Column()
   lastName!: string
 
+  @Expose()
+  get fullName(): string {
+    return `${this.firstName} ${this.lastName}`
+  }
+
+  @Exclude()
   @ManyToOne(() => File, { eager: true })
   @JoinColumn()
   avatar?: File
+
+  @Expose()
+  get avatarUrl() {
+    if (this.avatar) {
+      return this.avatar.filenameUrl
+    }
+    return null
+  }
 
   @Column({ unique: true })
   email!: string
@@ -52,8 +60,8 @@ export class User {
   @Column({ default: false })
   verified!: boolean
 
-  @Column({ type: 'enum', enum: Roles, default: Roles.client })
-  role!: Roles
+  @Column({ type: 'enum', enum: Role, default: Role.client })
+  role!: Role
 
   @OneToMany(() => Notification, notification => notification.user)
   notifications?: Notification[]
@@ -77,6 +85,7 @@ export class User {
   }
 
   @BeforeInsert()
+  @BeforeUpdate()
   hashPassword() {
     this.password = hashSync(this.password, 8)
   }

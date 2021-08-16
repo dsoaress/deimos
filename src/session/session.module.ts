@@ -4,7 +4,6 @@ import { JwtModule } from '@nestjs/jwt'
 import { PassportModule } from '@nestjs/passport'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { MailerModule } from '../mailer/mailer.module'
 import { TokenModule } from '../token/token.module'
 import { UserModule } from '../user/user.module'
 import { SessionController } from './session.controller'
@@ -26,7 +25,6 @@ import { LocalStrategy } from './strategies/local.strategy'
     }),
     UserModule,
     TokenModule,
-    MailerModule,
     PassportModule
   ],
   providers: [SessionService, LocalStrategy, JwtStrategy],

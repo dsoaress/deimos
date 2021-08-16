@@ -3,16 +3,20 @@ import { ConfigModule } from '@nestjs/config'
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { MailerModule } from '@nestjs-modules/mailer'
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter'
 import * as redisStore from 'cache-manager-redis-store'
 
 import { AppController } from './app.controller'
 import { Brand } from './brand/brand.entity'
 import { BrandModule } from './brand/brand.module'
+import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
+import { RolesGuard } from './common/guards/roles.guard'
 import { File } from './file/file.entity'
 import { FileModule } from './file/file.module'
 import { Invite } from './invite/invite.entity'
 import { InviteModule } from './invite/invite.module'
-import { MailerModule } from './mailer/mailer.module'
+import { MeModule } from './me/me.module'
 import { Message } from './message/message.entity'
 import { MessageModule } from './message/message.module'
 import { Notification } from './notification/notification.entity'
@@ -21,7 +25,6 @@ import { Org } from './org/org.entity'
 import { OrgModule } from './org/org.module'
 import { Request } from './request/request.entity'
 import { RequestModule } from './request/request.module'
-import { JwtAuthGuard } from './session/guards/jwt-auth.guard'
 import { Session } from './session/session.entity'
 import { SessionModule } from './session/session.module'
 import { StripeModule } from './stripe/stripe.module'
@@ -59,6 +62,22 @@ import { UserModule } from './user/user.module'
       ],
       synchronize: true
     }),
+    MailerModule.forRoot({
+      transport: {
+        host: 'localhost'
+      },
+      defaults: {
+        from: 'Mars Collective <hi@marscollective.co>'
+      },
+      preview: true,
+      template: {
+        dir: __dirname + '/common/templates',
+        adapter: new HandlebarsAdapter(),
+        options: {
+          strict: true
+        }
+      }
+    }),
     ThrottlerModule.forRoot({ ttl: 60, limit: 50 }),
     CacheModule.register({
       store: redisStore,
@@ -69,7 +88,6 @@ import { UserModule } from './user/user.module'
     UserModule,
     OrgModule,
     SessionModule,
-    MailerModule,
     TokenModule,
     RequestModule,
     FileModule,
@@ -80,11 +98,14 @@ import { UserModule } from './user/user.module'
     NotificationModule,
     StripeModule,
     TicketModule,
-    TicketMessageModule
+    TicketMessageModule,
+    MeModule,
+    MailerModule
   ],
   controllers: [AppController],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_INTERCEPTOR, useClass: CacheInterceptor }
   ]

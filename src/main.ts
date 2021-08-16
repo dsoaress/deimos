@@ -7,7 +7,7 @@ import { AllExceptionsFilter } from './common/filters/http-exception.filter'
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true, bodyParser: false })
 
-  app.use((req: Request, res: Response, next: NextFunction): void => {
+  app.use((req: Request, res: Response, next: NextFunction) => {
     if (req.originalUrl === '/subscriptions/webhooks') {
       express.raw({ type: 'application/json' })
       next()
