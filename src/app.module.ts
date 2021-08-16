@@ -27,6 +27,10 @@ import { SessionModule } from './session/session.module'
 import { StripeModule } from './stripe/stripe.module'
 import { Subscription } from './subscription/subscription.entity'
 import { SubscriptionModule } from './subscription/subscription.module'
+import { Ticket } from './ticket/ticket.entity'
+import { TicketModule } from './ticket/ticket.module'
+import { TicketMessage } from './ticket-message/ticket-message.entity'
+import { TicketMessageModule } from './ticket-message/ticket-message.module'
 import { Token } from './token/token.entity'
 import { TokenModule } from './token/token.module'
 import { User } from './user/user.entity'
@@ -49,7 +53,9 @@ import { UserModule } from './user/user.module'
         Token,
         Session,
         File,
-        Notification
+        Notification,
+        Ticket,
+        TicketMessage
       ],
       synchronize: true
     }),
@@ -72,7 +78,9 @@ import { UserModule } from './user/user.module'
     SubscriptionModule,
     MessageModule,
     NotificationModule,
-    StripeModule
+    StripeModule,
+    TicketModule,
+    TicketMessageModule
   ],
   controllers: [AppController],
   providers: [
