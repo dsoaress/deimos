@@ -13,7 +13,6 @@ import { FileInterceptor } from '@nestjs/platform-express'
 import { ParametersPipe } from 'src/common/pipes/parameters.pipe'
 import { UserRequest } from 'src/session/session.controller'
 
-import { File } from './file.entity'
 import { FileService } from './file.service'
 
 @Controller('files')
@@ -22,13 +21,13 @@ export class FileController {
 
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
-  async findAll(): Promise<File[]> {
+  async findAll() {
     return await this.fileService.findAll()
   }
 
   @Get(':id')
   @UseInterceptors(ClassSerializerInterceptor)
-  async findOne(@Param('id', ParametersPipe) id: string): Promise<File> {
+  async findOne(@Param('id', ParametersPipe) id: string) {
     return await this.fileService.findOne(id)
   }
 
@@ -37,12 +36,12 @@ export class FileController {
   async create(
     @UploadedFile() file: Express.Multer.File,
     @Request() { user }: { user: UserRequest }
-  ): Promise<File> {
+  ) {
     return await this.fileService.create(file, user.userId)
   }
 
   @Delete(':id')
-  async delete(@Param('id', ParametersPipe) id: string): Promise<void> {
+  async delete(@Param('id', ParametersPipe) id: string) {
     await this.fileService.delete(id)
   }
 }

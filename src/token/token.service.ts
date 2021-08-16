@@ -11,7 +11,7 @@ export class TokenService {
     private tokenService: Repository<Token>
   ) {}
 
-  async findOne(token: string): Promise<Token> {
+  async findOne(token: string) {
     const tokenExists = await this.tokenService.findOne(token, { relations: ['user'] })
 
     if (!tokenExists) {
@@ -21,7 +21,7 @@ export class TokenService {
     return tokenExists
   }
 
-  async create(userId: string): Promise<Token> {
+  async create(userId: string) {
     const token = this.tokenService.create({
       user: { id: userId }
     })
@@ -31,7 +31,7 @@ export class TokenService {
     return token
   }
 
-  async delete(token: string): Promise<void> {
+  async delete(token: string) {
     await this.findOne(token)
     await this.tokenService.delete(token)
   }

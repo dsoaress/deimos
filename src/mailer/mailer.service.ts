@@ -12,7 +12,7 @@ import { verificationEmail } from './templates/verification-email.template'
 
 @Injectable()
 export class MailerService {
-  async sendMail({ to, from, subject, templateData }: SendMailDto): Promise<void> {
+  async sendMail({ to, from, subject, templateData }: SendMailDto) {
     const mailgun = new Mailgun(FormData)
     const mailTemplate = await this.parse(templateData)
 
@@ -39,7 +39,7 @@ export class MailerService {
       .catch((e: unknown) => console.error(e))
   }
 
-  async sendVerificationEmail(user: User, token: string): Promise<void> {
+  async sendVerificationEmail(user: User, token: string) {
     const message = {
       to: {
         name: `${user.firstName} ${user.lastName}`,
@@ -59,7 +59,7 @@ export class MailerService {
     this.sendMail(message)
   }
 
-  async sendForgotPasswordEmail(user: User, token: string): Promise<void> {
+  async sendForgotPasswordEmail(user: User, token: string) {
     const message = {
       to: {
         name: `${user.firstName} ${user.lastName}`,
@@ -79,7 +79,7 @@ export class MailerService {
     this.sendMail(message)
   }
 
-  private async parse({ template, variables }: ParseMailDto): Promise<string> {
+  private async parse({ template, variables }: ParseMailDto) {
     const parseTemplate = handlebars.compile(template)
 
     return parseTemplate(variables)

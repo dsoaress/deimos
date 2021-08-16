@@ -20,7 +20,6 @@ import { ParametersPipe } from '../common/pipes/parameters.pipe'
 import { UserRequest } from '../session/session.controller'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
-import { User } from './user.entity'
 import { UserService } from './user.service'
 
 @Controller('users')
@@ -29,35 +28,32 @@ export class UserController {
 
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
-  async findAll(): Promise<User[]> {
+  async findAll() {
     return await this.userService.findAll()
   }
 
   @Get('me')
   @UseInterceptors(ClassSerializerInterceptor)
-  async findMe(@Request() { user }: { user: UserRequest }): Promise<User> {
+  async findMe(@Request() { user }: { user: UserRequest }) {
     return await this.userService.findOne(user.userId)
   }
 
   @Get(':id')
   @UseInterceptors(ClassSerializerInterceptor)
-  async findOne(@Param('id', ParametersPipe) id: string): Promise<User> {
+  async findOne(@Param('id', ParametersPipe) id: string) {
     return await this.userService.findOne(id)
   }
 
   @Public()
   @Post()
   @UsePipes(ValidationPipe)
-  async create(@Body() createUserDto: CreateUserDto): Promise<void> {
+  async create(@Body() createUserDto: CreateUserDto) {
     await this.userService.create(createUserDto)
   }
 
   @Patch(':id')
   @UsePipes(ValidationPipe)
-  async update(
-    @Param('id', ParametersPipe) id: string,
-    @Body() updateUserDto: UpdateUserDto
-  ): Promise<void> {
+  async update(@Param('id', ParametersPipe) id: string, @Body() updateUserDto: UpdateUserDto) {
     await this.userService.update(id, updateUserDto)
   }
 
@@ -66,12 +62,12 @@ export class UserController {
   async updateAvatar(
     @UploadedFile() file: Express.Multer.File,
     @Param('id', ParametersPipe) id: string
-  ): Promise<void> {
+  ) {
     await this.userService.updateAvatar(file, id)
   }
 
   @Delete(':id')
-  async delete(@Param('id', ParametersPipe) id: string): Promise<void> {
+  async delete(@Param('id', ParametersPipe) id: string) {
     await this.userService.delete(id)
   }
 }

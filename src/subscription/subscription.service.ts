@@ -71,7 +71,7 @@ export class SubscriptionService {
     return stripeCheckoutSessionUrl
   }
 
-  async webhooks(request: Request): Promise<void> {
+  async webhooks(request: Request) {
     const event = await this.stripeService.readBuffer(request)
 
     const relevantEvents = new Set([

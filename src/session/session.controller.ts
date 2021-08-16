@@ -20,11 +20,6 @@ import { ResetPasswordDto } from './dto/reset-password.dto'
 import { LocalAuthGuard } from './guards/local-auth.guard'
 import { SessionService } from './session.service'
 
-type SessionResponse = {
-  accessToken: string
-  refreshToken: string
-}
-
 export type UserRequest = {
   userId: string
   role: Roles
@@ -46,7 +41,7 @@ export class SessionController {
   async verifyEmail(
     @Param('userId', ParametersPipe) userId: string,
     @Param('token', ParametersPipe) token: string
-  ): Promise<void> {
+  ) {
     await this.sessionService.verifyEmail(userId, token)
   }
 
@@ -54,7 +49,7 @@ export class SessionController {
   @HttpCode(200)
   @Post('refresh-token')
   @UsePipes(ValidationPipe)
-  async refreshToken(@Body() refreshTokenDto: RefreshTokenDto): Promise<SessionResponse> {
+  async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
     return await this.sessionService.refreshToken(refreshTokenDto)
   }
 
@@ -62,7 +57,7 @@ export class SessionController {
   @HttpCode(200)
   @Post('forgot-password')
   @UsePipes(ValidationPipe)
-  async sendForgotPasswordEmail(@Body() forgotPassword: ForgotPasswordDto): Promise<void> {
+  async sendForgotPasswordEmail(@Body() forgotPassword: ForgotPasswordDto) {
     await this.sessionService.sendForgotPasswordEmail(forgotPassword)
   }
 
@@ -70,7 +65,7 @@ export class SessionController {
   @HttpCode(200)
   @Post('reset-password')
   @UsePipes(ValidationPipe)
-  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto): Promise<void> {
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     await this.sessionService.resetPassword(resetPasswordDto)
   }
 }

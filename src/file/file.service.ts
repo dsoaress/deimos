@@ -19,11 +19,11 @@ export class FileService {
     })
   }
 
-  async findAll(): Promise<File[]> {
+  async findAll() {
     return await this.fileService.find({ relations: ['createdBy'] })
   }
 
-  async findOne(id: string): Promise<File> {
+  async findOne(id: string) {
     const file = await this.fileService.findOne(id, { relations: ['createdBy'] })
 
     if (!file) {
@@ -33,7 +33,7 @@ export class FileService {
     return file
   }
 
-  async create(file: Express.Multer.File, userId: string): Promise<File> {
+  async create(file: Express.Multer.File, userId: string) {
     const filename = uuid() + file.originalname
 
     if (!file) {
@@ -63,7 +63,7 @@ export class FileService {
     return createdFile
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string) {
     const file = await this.findOne(id)
     await this.fileService.delete(id)
 

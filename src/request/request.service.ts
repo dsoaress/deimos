@@ -13,11 +13,11 @@ export class RequestService {
     private requestService: Repository<Request>
   ) {}
 
-  async findAll(): Promise<Request[]> {
+  async findAll() {
     return await this.requestService.find({ relations: ['user', 'designer', 'org'] })
   }
 
-  async findOne(id: string): Promise<Request> {
+  async findOne(id: string) {
     const request = await this.requestService.findOne(id, {
       relations: ['user', 'designer', 'org']
     })
@@ -29,7 +29,7 @@ export class RequestService {
     return request
   }
 
-  async create(createRequestDto: CreateRequestDto, userId: string): Promise<Request> {
+  async create(createRequestDto: CreateRequestDto, userId: string) {
     const request = this.requestService.create({
       ...createRequestDto,
       user: { id: userId }
@@ -40,12 +40,12 @@ export class RequestService {
     return request
   }
 
-  async update(updateRequestDto: UpdateRequestDto, id: string): Promise<void> {
+  async update(updateRequestDto: UpdateRequestDto, id: string) {
     await this.findOne(id)
     this.requestService.update(id, updateRequestDto)
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string) {
     await this.findOne(id)
     await this.requestService.delete(id)
   }

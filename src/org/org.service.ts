@@ -13,11 +13,11 @@ export class OrgService {
     private orgService: Repository<Org>
   ) {}
 
-  async findAll(): Promise<Org[]> {
+  async findAll() {
     return await this.orgService.find()
   }
 
-  async findOne(id: string): Promise<Org> {
+  async findOne(id: string) {
     const org = await this.orgService.findOne(id, {
       relations: ['users', 'brands', 'invites']
     })
@@ -29,7 +29,7 @@ export class OrgService {
     return org
   }
 
-  async create(createOrgDto: CreateOrgDto, userId: string): Promise<Org> {
+  async create(createOrgDto: CreateOrgDto, userId: string) {
     const org = this.orgService.create({
       ...createOrgDto,
       owner: { id: userId }
@@ -39,12 +39,12 @@ export class OrgService {
     return org
   }
 
-  async update(updateOrgDto: UpdateOrgDto, id: string): Promise<void> {
+  async update(updateOrgDto: UpdateOrgDto, id: string) {
     await this.findOne(id)
     await this.orgService.update(id, updateOrgDto)
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string) {
     await this.findOne(id)
     await this.orgService.delete(id)
   }

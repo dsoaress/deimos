@@ -20,11 +20,11 @@ export class UserService {
     private mailerService: MailerService
   ) {}
 
-  async findAll(): Promise<User[]> {
+  async findAll() {
     return await this.userService.find()
   }
 
-  async findOne(id: string): Promise<User> {
+  async findOne(id: string) {
     const user = await this.userService.findOne(id, {
       relations: ['notifications', 'orgs', 'lastOrgViewed']
     })
@@ -36,7 +36,7 @@ export class UserService {
     return user
   }
 
-  async findOneByEmail(email: string): Promise<User> {
+  async findOneByEmail(email: string) {
     const user = await this.userService.findOne({ email })
 
     if (!user) {
@@ -46,7 +46,7 @@ export class UserService {
     return user
   }
 
-  async create(createUserDto: CreateUserDto): Promise<void> {
+  async create(createUserDto: CreateUserDto) {
     const emailExists = await this.userService.findOne({
       email: createUserDto.email
     })
@@ -63,7 +63,7 @@ export class UserService {
     this.mailerService.sendVerificationEmail(user, token)
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<void> {
+  async update(id: string, updateUserDto: UpdateUserDto) {
     const { oldPassword, password } = updateUserDto
     const user = await this.findOne(id)
 
@@ -88,7 +88,7 @@ export class UserService {
     await this.userService.update(id, updateUserDto)
   }
 
-  async updateAvatar(file: Express.Multer.File, id: string): Promise<void> {
+  async updateAvatar(file: Express.Multer.File, id: string) {
     const user = await this.findOne(id)
     const oldAvatar = user?.avatar?.id
 
@@ -104,16 +104,16 @@ export class UserService {
     }
   }
 
-  async setEmailVerificationStatus(id: string): Promise<void> {
+  async setEmailVerificationStatus(id: string) {
     await this.userService.update(id, { verified: true })
   }
 
-  async resetPassword(id: string, password: string): Promise<void> {
+  async resetPassword(id: string, password: string) {
     await this.findOne(id)
     await this.userService.update(id, { password })
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string) {
     await this.findOne(id)
     await this.userService.delete(id)
   }

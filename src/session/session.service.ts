@@ -19,11 +19,6 @@ import { RefreshTokenDto } from './dto/refresh-token.dto'
 import { ResetPasswordDto } from './dto/reset-password.dto'
 import { Session } from './session.entity'
 
-type Response = {
-  accessToken: string
-  refreshToken: string
-}
-
 @Injectable()
 export class SessionService {
   constructor(
@@ -35,7 +30,7 @@ export class SessionService {
     private jwtService: JwtService
   ) {}
 
-  async validateUser(email: string, password: string): Promise<User> {
+  async validateUser(email: string, password: string) {
     const user = await this.userService.findOneByEmail(email)
     const checkPasswords = await compare(password, user.password)
 
@@ -46,7 +41,7 @@ export class SessionService {
     return user
   }
 
-  async signIn(user: User): Promise<Response> {
+  async signIn(user: User) {
     if (!user.verified) {
       const { token } = await this.tokenService.create(user.id)
       this.mailerService.sendVerificationEmail(user, token)
@@ -66,7 +61,7 @@ export class SessionService {
     return { accessToken, refreshToken }
   }
 
-  async verifyEmail(userId: string, token: string): Promise<void> {
+  async verifyEmail(userId: string, token: string) {
     const user = await this.userService.findOne(userId)
 
     if (!user.verified) {
@@ -91,7 +86,7 @@ export class SessionService {
     }
   }
 
-  async refreshToken(refreshTokenDto: RefreshTokenDto): Promise<Response> {
+  async refreshToken(refreshTokenDto: RefreshTokenDto) {
     const refreshTokenExists = await this.sessionService.findOne(refreshTokenDto, {
       relations: ['user']
     })
@@ -114,14 +109,14 @@ export class SessionService {
     return { accessToken, refreshToken }
   }
 
-  async sendForgotPasswordEmail({ email }: ForgotPasswordDto): Promise<void> {
+  async sendForgotPasswordEmail({ email }: ForgotPasswordDto) {
     const user = await this.userService.findOneByEmail(email)
     const { token } = await this.tokenService.create(user.id)
 
     this.mailerService.sendForgotPasswordEmail(user, token)
   }
 
-  async resetPassword({ email, token, password }: ResetPasswordDto): Promise<void> {
+  async resetPassword({ email, token, password }: ResetPasswordDto) {
     const user = await this.userService.findOneByEmail(email)
     const tokenExists = await this.tokenService.findOne(user.id)
 
