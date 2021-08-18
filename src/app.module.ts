@@ -64,18 +64,16 @@ import { UserModule } from './user/user.module'
     }),
     MailerModule.forRoot({
       transport: {
-        host: 'localhost',
-        port: 3010
-        // host: process.env.MAILGUN_HOST ?? '',
-        // auth: {
-        //   user: process.env.MAILGUN_USER ?? '',
-        //   pass: process.env.MAILGUN_PASS ?? ''
-        // }
+        host: process.env.MAILGUN_HOST ?? '',
+        auth: {
+          user: process.env.MAILGUN_USER ?? '',
+          pass: process.env.MAILGUN_PASS ?? ''
+        }
       },
       defaults: {
         from: 'Mars Collective <hi@marscollective.co>'
       },
-      preview: true,
+      preview: false,
       template: {
         adapter: new HandlebarsAdapter(),
         options: {
