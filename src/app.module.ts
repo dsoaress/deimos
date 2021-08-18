@@ -64,14 +64,19 @@ import { UserModule } from './user/user.module'
     }),
     MailerModule.forRoot({
       transport: {
-        host: 'localhost'
+        host: 'localhost',
+        port: 3010
+        // host: process.env.MAILGUN_HOST ?? '',
+        // auth: {
+        //   user: process.env.MAILGUN_USER ?? '',
+        //   pass: process.env.MAILGUN_PASS ?? ''
+        // }
       },
       defaults: {
         from: 'Mars Collective <hi@marscollective.co>'
       },
       preview: true,
       template: {
-        dir: __dirname + '/common/templates',
         adapter: new HandlebarsAdapter(),
         options: {
           strict: true
@@ -79,12 +84,12 @@ import { UserModule } from './user/user.module'
       }
     }),
     ThrottlerModule.forRoot({ ttl: 60, limit: 50 }),
-    CacheModule.register({
-      store: redisStore,
-      host: process.env.REDISHOST ?? '',
-      port: process.env.REDISPORT ?? '',
-      auth_pass: process.env.REDISPASSWORD ?? ''
-    }),
+    // CacheModule.register({
+    //   store: redisStore,
+    //   host: process.env.REDISHOST ?? '',
+    //   port: process.env.REDISPORT ?? '',
+    //   auth_pass: process.env.REDISPASSWORD ?? ''
+    // }),
     UserModule,
     OrgModule,
     SessionModule,
@@ -106,8 +111,8 @@ import { UserModule } from './user/user.module'
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
-    { provide: APP_INTERCEPTOR, useClass: CacheInterceptor }
+    { provide: APP_GUARD, useClass: ThrottlerGuard }
+    // { provide: APP_INTERCEPTOR, useClass: CacheInterceptor }
   ]
 })
 export class AppModule {}

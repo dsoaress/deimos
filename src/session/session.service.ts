@@ -16,7 +16,9 @@ import { UserService } from '../user/user.service'
 import { TokenService } from './../token/token.service'
 import { ForgotPasswordDto } from './dto/forgot-password.dto'
 import { RefreshTokenDto } from './dto/refresh-token.dto'
+import { ResendVerificationEmailDto } from './dto/resend-verification-email.dto'
 import { ResetPasswordDto } from './dto/reset-password.dto'
+import { TokenExistsDto } from './dto/token-exists.dto copy'
 import { Session } from './session.entity'
 
 @Injectable()
@@ -43,14 +45,6 @@ export class SessionService {
 
   async signIn(user: User) {
     if (!user.verified) {
-      const { token } = await this.tokenService.create(user.id)
-
-      await this.mailerService.sendMail({
-        to: user.email,
-        subject: 'Verify your email',
-        html: `<p>User id: ${user.id}</p> <p>Token: ${token}</p>`
-      })
-
       throw new ForbiddenException('Not verified email')
     }
 
@@ -80,20 +74,32 @@ export class SessionService {
 
       if (emailVerificationTokenExpired) {
         await this.tokenService.delete(tokenExists.token)
-        const data = await this.tokenService.create(user.id)
-
-        await this.mailerService.sendMail({
-          to: user.email,
-          subject: 'Verify your email',
-          html: `<p>User id: ${user.id}</p> <p>Token: ${data.token}</p>`
-        })
-
         throw new BadRequestException('Token expired')
       }
 
       await this.tokenService.delete(tokenExists.token)
       await this.userService.setEmailVerificationStatus(userId)
     }
+
+    user.verified = true
+    const session = await this.signIn(user)
+
+    return session
+  }
+
+  async resendVerificationEmail(resendVerificationEmailDto: ResendVerificationEmailDto) {
+    const user = await this.userService.findOneByEmail(resendVerificationEmailDto.email)
+    const { token } = await this.tokenService.create(user.id)
+
+    this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Confirm your sign up!',
+      template: `${process.cwd()}/templates/sign-up`,
+      context: {
+        firstName: user.firstName,
+        link: `${process.env.APP_URL}/auth/verifying-account?user=${user.id}&token=${token}`
+      }
+    })
   }
 
   async refreshToken(refreshTokenDto: RefreshTokenDto) {
@@ -123,26 +129,36 @@ export class SessionService {
     const user = await this.userService.findOneByEmail(email)
     const { token } = await this.tokenService.create(user.id)
 
-    await this.mailerService.sendMail({
+    this.mailerService.sendMail({
       to: user.email,
       subject: 'Reset your password',
-      html: `<p>User id: ${user.id}</p> <p>Token: ${token}</p>`
+      template: `${process.cwd()}/templates/reset-password`,
+      context: {
+        firstName: user.firstName,
+        link: `${process.env.APP_URL}/auth/reset-password?token=${token}`
+      }
     })
+  }
+
+  async tokenExists(tokenExistsDto: TokenExistsDto) {
+    const token = await this.tokenService.findOne(tokenExistsDto.token)
+    const isTokenExpired = dayjs().isAfter(dayjs.unix(token.expiresIn))
+
+    if (isTokenExpired) {
+      throw new BadRequestException('Token expired')
+    }
   }
 
   async resetPassword({ token, password }: ResetPasswordDto) {
     const tokenExists = await this.tokenService.findOne(token)
 
-    if (tokenExists.token === token) {
-      const forgotPasswordTokenExpired = dayjs().isAfter(dayjs.unix(tokenExists.expiresIn))
-
-      if (forgotPasswordTokenExpired) {
-        throw new BadRequestException('Token expired')
-      }
-
-      await this.userService.resetPassword(tokenExists.user.id, password)
-    } else {
+    if (tokenExists.token !== token) {
       throw new BadRequestException('Token invalid')
     }
+
+    await this.tokenService.delete(tokenExists.token)
+    await this.userService.resetPassword(tokenExists.user.id, password)
+
+    return await this.signIn(tokenExists.user)
   }
 }
