@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { MailerService } from '@nestjs-modules/mailer'
-import { compare } from 'bcryptjs'
+import { compare, hash } from 'bcryptjs'
 import { paginate, PaginateQuery } from 'nestjs-paginate'
 import { Repository } from 'typeorm'
 
@@ -64,15 +64,21 @@ export class UserService {
       throw new BadRequestException('Email already registered')
     }
 
+    createUserDto.password = await hash(createUserDto.password, 8)
+
     const user = this.userService.create(createUserDto)
 
     await this.userService.save(user)
     const { token } = await this.tokenService.create(user.id)
 
-    await this.mailerService.sendMail({
+    this.mailerService.sendMail({
       to: user.email,
-      subject: 'Verify your email',
-      html: `<p>User id: ${user.id}</p> <p>Token: ${token}</p>`
+      subject: 'Confirm your sign up!',
+      template: `${process.cwd()}/templates/sign-up`,
+      context: {
+        firstName: user.firstName,
+        link: `${process.env.APP_URL}/auth/verifying-account?user=${user.id}&token=${token}`
+      }
     })
   }
 
@@ -94,6 +100,8 @@ export class UserService {
       if (!checkPasswords) {
         throw new BadRequestException('Passwords do not match')
       }
+
+      updateUserDto.password = await hash(password, 8)
 
       delete updateUserDto.oldPassword
     }
@@ -123,7 +131,10 @@ export class UserService {
 
   async resetPassword(id: string, password: string) {
     await this.findOne(id)
-    await this.userService.update(id, { password })
+
+    const hashedPassword = await hash(password, 8)
+
+    await this.userService.update(id, { password: hashedPassword })
   }
 
   async delete(id: string) {

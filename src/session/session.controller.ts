@@ -18,7 +18,9 @@ import { ParametersPipe } from '../common/pipes/parameters.pipe'
 import { User } from '../user/user.entity'
 import { ForgotPasswordDto } from './dto/forgot-password.dto'
 import { RefreshTokenDto } from './dto/refresh-token.dto'
+import { ResendVerificationEmailDto } from './dto/resend-verification-email.dto'
 import { ResetPasswordDto } from './dto/reset-password.dto'
+import { TokenExistsDto } from './dto/token-exists.dto copy'
 import { SessionService } from './session.service'
 
 export type UserRequest = {
@@ -43,7 +45,23 @@ export class SessionController {
     @Param('userId', ParametersPipe) userId: string,
     @Param('token', ParametersPipe) token: string
   ) {
-    await this.sessionService.verifyEmail(userId, token)
+    return await this.sessionService.verifyEmail(userId, token)
+  }
+
+  @Public()
+  @HttpCode(200)
+  @Post('resend-verification-email')
+  @UsePipes(ValidationPipe)
+  async resendVerificationEmail(@Body() resendVerificationEmailDto: ResendVerificationEmailDto) {
+    await this.sessionService.resendVerificationEmail(resendVerificationEmailDto)
+  }
+
+  @Public()
+  @HttpCode(200)
+  @Post('token-exists')
+  @UsePipes(ValidationPipe)
+  async tokenExists(@Body() tokenExistsDto: TokenExistsDto) {
+    await this.sessionService.tokenExists(tokenExistsDto)
   }
 
   @Public()
@@ -67,6 +85,6 @@ export class SessionController {
   @Post('reset-password')
   @UsePipes(ValidationPipe)
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    await this.sessionService.resetPassword(resetPasswordDto)
+    return await this.sessionService.resetPassword(resetPasswordDto)
   }
 }
