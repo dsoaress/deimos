@@ -4943,10 +4943,10 @@ neo-async@^2.6.0, neo-async@^2.6.2:
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
-nestjs-paginate@^1.1.8:
-  version "1.1.8"
-  resolved "https://registry.yarnpkg.com/nestjs-paginate/-/nestjs-paginate-1.1.8.tgz#2b843f6d0af568c714a14a31ef376d328dc92140"
-  integrity sha512-Zq8dGUhByc0u4esdBZaUJ5BHLbEui+Mbabc1BfcmbyD9yYMZx4XQBDZpbXDvfRKH/7SfyBcEGU+ucITrlzrMjw==
+nestjs-paginate@^2.0.0:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/nestjs-paginate/-/nestjs-paginate-2.0.1.tgz#a081a08fa39cc471787272fa7391a7be43a3aec9"
+  integrity sha512-cO7xnIgEaZVigLVJH2g123LzYZ0H1pWPZGJPVtYVVhykAtERYo+7wLfqb0xX43Kd5wJUXQM+GZEvne4dj14Kpw==
 
 netmask@^2.0.1:
   version "2.0.2"
