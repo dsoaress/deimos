@@ -28,7 +28,7 @@ export class UserService {
       {
         sortableColumns: ['id', 'firstName', 'lastName', 'createdAt', 'updatedAt'],
         searchableColumns: ['email', 'fullName'],
-        defaultSortBy: [['firstName', 'DESC']]
+        defaultSortBy: [['firstName', 'ASC']]
       }
     )
   }

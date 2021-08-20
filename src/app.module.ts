@@ -44,7 +44,7 @@ import { UserModule } from './user/user.module'
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_URL ?? '',
+      url: process.env.TYPEORM_URL ?? '',
       entities: [
         User,
         Org,

@@ -31,7 +31,7 @@ export class Org {
   accountManager?: User
 
   @OneToOne(() => Subscription, subscription => subscription.org, { eager: true })
-  subscription!: Subscription
+  subscription?: Subscription
 
   @ManyToOne(() => User, { eager: true })
   @JoinColumn()
